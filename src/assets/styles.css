@@ -1,0 +1,91 @@
+/* Laravel app styles to match the original design */
+
+body {
+  background: #fff;
+  font-family: "OpenSans", sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  color: #4b4b4b;
+}
+
+h1, h2, h3, h4, h5, h6, p, button, input, select, textarea {
+  font-family: 'OpenSans', sans-serif;
+  margin: 0px;
+  padding: 0px;
+}
+
+.btn-primary {
+  background: #2e42e2;
+  color: #fff;
+}
+
+.bg-primary {
+  background-color: #2e42e2 !important;
+}
+
+a {
+  color: #2e42e2;
+  text-decoration: none;
+}
+
+.form-control {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border-bottom: 1px solid #b5b5b5;
+  letter-spacing: 0;
+  padding: 10px 10px 10px 0px;
+  appearance: auto;
+}
+
+.form-control:focus {
+  box-shadow: none;
+  outline: none;
+  border-color: none;
+}
+
+.form-wrapper {
+  min-height: 500px;
+  position: relative;
+  z-index: 9;
+  overflow: hidden;
+}
+
+.headerForm {
+  text-align: center;
+  padding-bottom: 35px;
+}
+
+.headerForm h1 {
+  font-family: "OpenSans", sans-serif;
+  font-style: normal;
+  color: #4b4b4b;
+  font-size: 2em;
+}
+
+.headerForm p {
+  color: #909097 !important;
+  font-weight: 500;
+  font-size: 16px;
+  padding-top: 10px;
+}
+
+.signUpmainForm .formGroup {
+  margin-bottom: 2.0rem;
+  position: relative;
+}
+
+.form-wrapper .formGroup .form-label {
+  font-weight: 600;
+}
+
+.form-wrapper .btn {
+  padding: 7px 40px;
+}
+
+.loginPage .headerForm h1 {
+  font-family: "OpenSans", sans-serif;
+  font-style: normal;
+  color: #4b4b4b;
+  font-size: 2em;
+}

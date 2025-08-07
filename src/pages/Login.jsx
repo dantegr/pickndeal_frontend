@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
+import '../assets/styles.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -39,86 +40,161 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to PicknDeal
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">
-              create a new account
-            </Link>
-          </p>
+    <div style={{ fontFamily: '"OpenSans", sans-serif', fontSize: '14px', minHeight: '100vh', color: '#4b4b4b', background: '#fff' }}>
+      {/* sign up Page */}
+      <div className="skewed-bg bgGreySignUp">
+        <div className="container">
+          <br /><br />
+          <div className="form-wrapper loginPage" style={{ minHeight: '500px', position: 'relative', zIndex: 9, overflow: 'hidden' }}>
+            <form onSubmit={handleSubmit}>
+              <div className="row justify-content-center">
+                <div className="col-md-6">
+                  <div className="signUpmainForm h-100">
+                    <div 
+                      className="headerForm"
+                      style={{ 
+                        textAlign: 'center', 
+                        paddingBottom: '35px' 
+                      }}
+                    >
+                      <img src="/logo.png" alt="PickNDeal" />
+                      <br /><br />
+                      <h1 
+                        className="text-start" 
+                        style={{ 
+                          fontFamily: '"OpenSans", sans-serif',
+                          fontStyle: 'normal',
+                          color: '#4b4b4b',
+                          fontSize: '2em'
+                        }}
+                      >
+                        Sign In
+                      </h1>
+                      <p 
+                        className="text-start"
+                        style={{
+                          color: '#909097',
+                          fontWeight: '500',
+                          fontSize: '16px',
+                          paddingTop: '10px'
+                        }}
+                      >
+                        To access marketplace of suppliers and retailers!
+                      </p>
+                    </div>
+                    
+                    {/* main form */}
+                    <div className="row">
+                      <div className="col-md-12">
+                        <div 
+                          className="formGroup"
+                          style={{ marginBottom: '2.0rem', position: 'relative' }}
+                        >
+                          <label 
+                            htmlFor="userName" 
+                            className="form-label"
+                            style={{ fontWeight: '600' }}
+                          >
+                            Username
+                          </label>
+                          <input 
+                            type="text" 
+                            className="form-control"
+                            id="userName" 
+                            name="email" 
+                            required
+                            value={formData.email}
+                            onChange={handleChange}
+                            style={{
+                              border: '0',
+                              borderRadius: '0',
+                              boxShadow: 'none',
+                              borderBottom: '1px solid #b5b5b5',
+                              letterSpacing: '0',
+                              padding: '10px 10px 10px 0px',
+                              appearance: 'auto',
+                              backgroundColor: 'transparent'
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className="col-md-12">
+                        <div 
+                          className="formGroup"
+                          style={{ marginBottom: '2.0rem', position: 'relative' }}
+                        >
+                          <label 
+                            htmlFor="password" 
+                            className="form-label"
+                            style={{ fontWeight: '600' }}
+                          >
+                            Password
+                          </label>
+                          <input 
+                            type="password" 
+                            className="form-control"
+                            id="password" 
+                            name="password" 
+                            required
+                            value={formData.password}
+                            onChange={handleChange}
+                            style={{
+                              border: '0',
+                              borderRadius: '0',
+                              boxShadow: 'none',
+                              borderBottom: '1px solid #b5b5b5',
+                              letterSpacing: '0',
+                              padding: '10px 10px 10px 0px',
+                              appearance: 'auto',
+                              backgroundColor: 'transparent'
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                
+                    <div className="mb-3 mt-5 text-center">
+                      <button 
+                        type="submit" 
+                        className="btn btn-primary"
+                        disabled={loading}
+                        style={{
+                          background: '#2e42e2',
+                          color: '#fff',
+                          padding: '7px 40px'
+                        }}
+                      >
+                        {loading ? 'Signing in...' : 'Sign In'}
+                      </button>
+                    </div>
+
+                    <div className="d-flex justify-content-center links">
+                      Don't have an account?&nbsp;&nbsp;
+                      <Link 
+                        to="/signup"
+                        style={{ color: '#2e42e2', textDecoration: 'none' }}
+                      >
+                        Sign Up
+                      </Link>
+                    </div>
+                    <div className="d-flex justify-content-center">
+                      <Link 
+                        to="/forgot-password"
+                        style={{ color: '#2e42e2', textDecoration: 'none' }}
+                      >
+                        Forgot your password?
+                      </Link>
+                    </div>
+
+                    {/* /main form */}
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
-                Forgot your password?
-              </Link>
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
-        </form>
       </div>
+      {/* /sign up page */}
     </div>
   );
 };
