@@ -1,0 +1,304 @@
+/* SignUp Page Styles - Matching Laravel App */
+
+@font-face {
+  font-family: "OpenSans";
+  src: url("../fonts/OpenSans-Regular.ttf") format("truetype"),
+       url("../fonts/OpenSans-Bold.ttf") format("truetype"),
+       url("../fonts/OpenSans-ExtraBold.ttf") format("truetype");
+}
+
+/* Container and Layout */
+.skewed-bg {
+  background: #f8f9fa;
+  min-height: 100vh;
+  padding: 20px 0;
+}
+
+.bgGreySignUp {
+  background-color: #f5f5f5;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -15px;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.col-md-8 {
+  flex: 0 0 66.666667%;
+  max-width: 66.666667%;
+  padding: 0 15px;
+}
+
+.col-md-6, .col-6 {
+  flex: 0 0 50%;
+  max-width: 50%;
+  padding: 0 15px;
+}
+
+/* Form Wrapper */
+.form-wrapper {
+  min-height: 500px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  position: relative;
+  z-index: 9;
+  overflow: hidden;
+}
+
+/* Header Form */
+.headerForm {
+  text-align: center;
+  padding-bottom: 35px;
+}
+
+.headerForm h1 {
+  font-weight: bold;
+  font-size: 40px;
+  font-family: inherit;
+  font-style: normal;
+  color: #000;
+  margin-bottom: 10px;
+}
+
+.logo-text {
+  color: #2e42e2;
+  font-weight: bold;
+}
+
+.headerForm p {
+  color: #909097 !important;
+  font-weight: 500;
+  font-size: 16px;
+  padding-top: 10px;
+  margin: 0;
+}
+
+/* User Type Selection */
+.selectProfile {
+  width: 100%;
+  margin-bottom: 30px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.selectProfile .userSelect {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 20px;
+  color: #4b4b4b;
+  width: 140px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #fff;
+}
+
+.selectProfile .userSelect .user-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 10px;
+  color: #868686;
+}
+
+.selectProfile .userSelect.selected,
+.selectProfile .userSelect:hover {
+  border-color: #2e42e2;
+  background: #2e42e2;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 66, 226, 0.3);
+}
+
+.selectProfile .userSelect.selected .user-icon,
+.selectProfile .userSelect:hover .user-icon {
+  color: #fff;
+}
+
+/* Form Groups */
+.signUpmainForm {
+  padding: 0;
+}
+
+.signUpmainForm .formGroup {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.formGroup .form-label {
+  font-weight: 600;
+  color: #4b4b4b;
+  font-size: 14px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Form Controls */
+.form-control {
+  font-size: 14px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border-bottom: 1px solid #b5b5b5;
+  letter-spacing: 0;
+  padding: 10px 10px 10px 0px;
+  width: 100%;
+  background: transparent;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+  box-shadow: none;
+  outline: none;
+  border-bottom-color: #2e42e2;
+}
+
+.form-control::placeholder {
+  color: #999;
+}
+
+/* Input Groups */
+.input-group {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.input-group .form-control {
+  padding-right: 2.25em;
+}
+
+.mb-3 {
+  margin-bottom: 1rem;
+}
+
+.mt-5 {
+  margin-top: 3rem;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  font-weight: 600;
+  text-align: center;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: 12px 50px;
+  font-size: 16px;
+  line-height: 1.5;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #2e42e2;
+  color: #fff;
+  border-color: #2e42e2;
+}
+
+.btn-primary:hover {
+  background: #1e32d2;
+  border-color: #1e32d2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 66, 226, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Text Center */
+.text-center {
+  text-align: center;
+}
+
+/* Login Link */
+.login-link {
+  color: #4b4b4b;
+  font-size: 14px;
+}
+
+.login-link a {
+  color: #2e42e2;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.login-link a:hover {
+  color: #1e32d2;
+  text-decoration: underline;
+}
+
+.login-link strong {
+  font-weight: 600;
+}
+
+/* Height Utilities */
+.h-100 {
+  height: 100%;
+}
+
+/* Responsive Design */
+@media only screen and (max-width: 767px) {
+  .headerForm h1 {
+    font-size: 28px;
+  }
+  
+  .form-wrapper {
+    padding: 20px;
+  }
+  
+  .selectProfile .userSelect {
+    width: 110px;
+    padding: 15px 10px;
+    font-size: 14px;
+  }
+  
+  .selectProfile .userSelect .user-icon {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .col-md-8 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  .btn {
+    padding: 10px 30px;
+    font-size: 14px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .selectProfile {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .selectProfile .userSelect {
+    width: 150px;
+    margin-bottom: 10px;
+  }
+}

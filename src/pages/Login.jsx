@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
+import logo from '../assets/logo.png';
 import '../assets/styles.css';
 
 const Login = () => {
@@ -57,7 +58,7 @@ const Login = () => {
                         paddingBottom: '35px' 
                       }}
                     >
-                      <img src="/logo.png" alt="PickNDeal" />
+                      <img src={logo} alt="PickNDeal" />
                       <br /><br />
                       <h1 
                         className="text-start" 
