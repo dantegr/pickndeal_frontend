@@ -190,41 +190,19 @@ const SignUp = () => {
                 onSubmit={handleSubmit}
                 sx={{
                   '& > .MuiGrid-container': {
-                    maxWidth: '580px',
+                    maxWidth: { xs: '100%', md: '760px' },
                     margin: '0 auto',
-                    '@media (min-width: 900px)': {
-                      justifyContent: 'space-between',
-                      '& > .MuiGrid-item:nth-of-type(even)': {
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                      }
-                    },
-                    '@media (max-width: 599px)': {
-                      display: 'block',
-                      maxWidth: 'none',
-                      '& > .MuiGrid-item': {
-                        maxWidth: '100%',
-                        flexBasis: '100%',
-                        paddingLeft: 0,
-                        paddingRight: 0,
-                        paddingTop: '16px',
-                      }
-                    }
                   }
                 }}
               >
-                <Grid container spacing={{ xs: 2, sm: 3 }}>
-                  <Grid 
-                    item 
-                    xs={12} 
-                    sm={12} 
-                    md={6}
-                    sx={{
-                      '@media (min-width: 900px)': {
-                        width: 'fit-content',
-                      }
-                    }}
-                  >
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gap: { xs: 2, sm: 3 },
+                    gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                  }}
+                >
+                  <Box>
                     <TextField
                       fullWidth
                       label="First Name"
@@ -238,26 +216,13 @@ const SignUp = () => {
                         sx: { fontWeight: 600 }
                       }}
                       sx={{
-                        '@media (min-width: 900px)': {
-                          width: '120.06%',
-                        },
                         '& .MuiInput-root': {
                           minHeight: '48px',
                         }
                       }}
                     />
-                  </Grid>
-                  <Grid 
-                    item 
-                    xs={12} 
-                    sm={12} 
-                    md={6}
-                    sx={{
-                      '@media (min-width: 900px)': {
-                        width: 'fit-content',
-                      }
-                    }}
-                  >
+                  </Box>
+                  <Box>
                     <TextField
                       fullWidth
                       label="Last Name"
@@ -271,26 +236,13 @@ const SignUp = () => {
                         sx: { fontWeight: 600 }
                       }}
                       sx={{
-                        '@media (min-width: 900px)': {
-                          width: '120.06%',
-                        },
                         '& .MuiInput-root': {
                           minHeight: '48px',
                         }
                       }}
                     />
-                  </Grid>
-                  <Grid 
-                    item 
-                    xs={12} 
-                    sm={12} 
-                    md={6}
-                    sx={{
-                      '@media (min-width: 900px)': {
-                        width: 'fit-content',
-                      }
-                    }}
-                  >
+                  </Box>
+                  <Box>
                     <TextField
                       fullWidth
                       label="Email Address"
@@ -304,26 +256,13 @@ const SignUp = () => {
                         sx: { fontWeight: 600 }
                       }}
                       sx={{
-                        '@media (min-width: 900px)': {
-                          width: '120.06%',
-                        },
                         '& .MuiInput-root': {
                           minHeight: '48px',
                         }
                       }}
                     />
-                  </Grid>
-                  <Grid 
-                    item 
-                    xs={12} 
-                    sm={12} 
-                    md={6}
-                    sx={{
-                      '@media (min-width: 900px)': {
-                        width: 'fit-content',
-                      }
-                    }}
-                  >
+                  </Box>
+                  <Box>
                     <TextField
                       fullWidth
                       label="Phone Number"
@@ -339,16 +278,13 @@ const SignUp = () => {
                         sx: { fontWeight: 600 }
                       }}
                       sx={{
-                        '@media (min-width: 900px)': {
-                          width: '120.06%',
-                        },
                         '& .MuiInput-root': {
                           minHeight: '48px',
                         }
                       }}
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={12} md={6}>
+                  </Box>
+                  <Box>
                     <TextField
                       fullWidth
                       label="Password"
@@ -394,8 +330,8 @@ const SignUp = () => {
                         }
                       }}
                     />
-                  </Grid>
-                  <Grid item xs={12} sm={12} md={6}>
+                  </Box>
+                  <Box>
                     <TextField
                       fullWidth
                       label="Confirm Password"
@@ -441,8 +377,8 @@ const SignUp = () => {
                         }
                       }}
                     />
-                  </Grid>
-                </Grid>
+                  </Box>
+                </Box>
 
                 <Box sx={{ mt: 5, textAlign: 'center' }}>
                   <Button
