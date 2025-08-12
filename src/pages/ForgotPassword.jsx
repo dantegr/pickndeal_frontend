@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import {
+  Box,
+  Container,
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  Stack,
+  CircularProgress,
+  Link as MuiLink,
+} from '@mui/material';
+import logo from '../assets/logo.png';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -21,52 +33,118 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Forgot your password?
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Enter your email address and we'll send you a link to reset your password.
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email address
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-              placeholder="Enter your email"
-            />
-          </div>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        backgroundColor: '#f5f5f5',
+        display: 'flex',
+        alignItems: 'center',
+        py: 4,
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={3}
+          sx={{
+            p: 5,
+            borderRadius: '20px',
+            backgroundColor: '#fff',
+            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
+          }}
+        >
+          <Stack spacing={4}>
+            {/* Header */}
+            <Box sx={{ textAlign: 'center' }}>
+              <Box sx={{ mb: 3 }}>
+                <img src={logo} alt="PickNDeal" style={{ maxHeight: '60px' }} />
+              </Box>
+              <Typography
+                variant="h4"
+                component="h1"
+                sx={{
+                  fontWeight: 'bold',
+                  color: '#4b4b4b',
+                  mb: 1,
+                  textAlign: 'left',
+                }}
+              >
+                Forgot Password
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: '#909097',
+                  fontWeight: 500,
+                  textAlign: 'left',
+                }}
+              >
+                Enter your email and we'll send you a reset link.
+              </Typography>
+            </Box>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {loading ? 'Sending...' : 'Send reset link'}
-            </button>
-          </div>
+            {/* Form */}
+            <Box component="form" onSubmit={handleSubmit}>
+              <Stack spacing={3}>
+                <TextField
+                  fullWidth
+                  label="Email Address"
+                  name="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  variant="standard"
+                  InputLabelProps={{
+                    sx: { fontWeight: 600 },
+                  }}
+                  sx={{ mb: 3 }}
+                />
 
-          <div className="text-center">
-            <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
-              Back to login
-            </Link>
-          </div>
-        </form>
-      </div>
-    </div>
+                <Box sx={{ mt: 2, textAlign: 'center' }}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    disabled={loading}
+                    fullWidth
+                    sx={{
+                      maxWidth: '240px',
+                      position: 'relative',
+                    }}
+                  >
+                    {loading ? (
+                      <>
+                        <CircularProgress size={20} sx={{ mr: 1, color: 'white' }} />
+                        Sending...
+                      </>
+                    ) : (
+                      'Send reset link'
+                    )}
+                  </Button>
+                </Box>
+              </Stack>
+            </Box>
+
+            {/* Links */}
+            <Stack spacing={1} alignItems="center">
+              <MuiLink
+                component={Link}
+                to="/login"
+                sx={{
+                  color: '#2e42e2',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
+              >
+                Back to login
+              </MuiLink>
+            </Stack>
+          </Stack>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 
