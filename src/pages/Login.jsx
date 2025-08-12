@@ -2,8 +2,18 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
+import {
+  Box,
+  Container,
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  Stack,
+  CircularProgress,
+  Link as MuiLink
+} from '@mui/material';
 import logo from '../assets/logo.png';
-import '../assets/styles.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -41,162 +51,150 @@ const Login = () => {
   };
 
   return (
-    <div style={{ fontFamily: '"OpenSans", sans-serif', fontSize: '14px', minHeight: '100vh', color: '#4b4b4b', background: '#fff' }}>
-      {/* sign up Page */}
-      <div className="skewed-bg bgGreySignUp">
-        <div className="container">
-          <br /><br />
-          <div className="form-wrapper loginPage" style={{ minHeight: '500px', position: 'relative', zIndex: 9, overflow: 'hidden' }}>
-            <form onSubmit={handleSubmit}>
-              <div className="row justify-content-center">
-                <div className="col-md-6">
-                  <div className="signUpmainForm h-100">
-                    <div 
-                      className="headerForm"
-                      style={{ 
-                        textAlign: 'center', 
-                        paddingBottom: '35px' 
+    <Box
+        sx={{
+          minHeight: '100vh',
+          backgroundColor: '#f5f5f5',
+          display: 'flex',
+          alignItems: 'center',
+          py: 4,
+        }}
+      >
+        <Container maxWidth="sm">
+          <Paper
+            elevation={3}
+            sx={{
+              p: 5,
+              borderRadius: '20px',
+              backgroundColor: '#fff',
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <Stack spacing={4}>
+              {/* Header */}
+              <Box sx={{ textAlign: 'center' }}>
+                <Box sx={{ mb: 3 }}>
+                  <img src={logo} alt="PickNDeal" style={{ maxHeight: '60px' }} />
+                </Box>
+                <Typography
+                  variant="h4"
+                  component="h1"
+                  sx={{
+                    fontWeight: 'bold',
+                    color: '#4b4b4b',
+                    mb: 1,
+                    textAlign: 'left',
+                  }}
+                >
+                  Sign In
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: '#909097',
+                    fontWeight: 500,
+                    textAlign: 'left',
+                  }}
+                >
+                  To access marketplace of suppliers and retailers!
+                </Typography>
+              </Box>
+
+              {/* Form */}
+              <Box component="form" onSubmit={handleSubmit}>
+                <Stack spacing={3}>
+                  <TextField
+                    fullWidth
+                    label="Username"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    variant="standard"
+                    InputLabelProps={{
+                      sx: { fontWeight: 600 }
+                    }}
+                    sx={{ mb: 2 }}
+                  />
+
+                  <TextField
+                    fullWidth
+                    label="Password"
+                    name="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    variant="standard"
+                    InputLabelProps={{
+                      sx: { fontWeight: 600 }
+                    }}
+                    sx={{ mb: 3 }}
+                  />
+
+                  <Box sx={{ mt: 4, textAlign: 'center' }}>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      disabled={loading}
+                      fullWidth
+                      sx={{
+                        maxWidth: '200px',
+                        position: 'relative',
                       }}
                     >
-                      <img src={logo} alt="PickNDeal" />
-                      <br /><br />
-                      <h1 
-                        className="text-start" 
-                        style={{ 
-                          fontFamily: '"OpenSans", sans-serif',
-                          fontStyle: 'normal',
-                          color: '#4b4b4b',
-                          fontSize: '2em'
-                        }}
-                      >
-                        Sign In
-                      </h1>
-                      <p 
-                        className="text-start"
-                        style={{
-                          color: '#909097',
-                          fontWeight: '500',
-                          fontSize: '16px',
-                          paddingTop: '10px'
-                        }}
-                      >
-                        To access marketplace of suppliers and retailers!
-                      </p>
-                    </div>
-                    
-                    {/* main form */}
-                    <div className="row">
-                      <div className="col-md-12">
-                        <div 
-                          className="formGroup"
-                          style={{ marginBottom: '2.0rem', position: 'relative' }}
-                        >
-                          <label 
-                            htmlFor="userName" 
-                            className="form-label"
-                            style={{ fontWeight: '600' }}
-                          >
-                            Username
-                          </label>
-                          <input 
-                            type="text" 
-                            className="form-control"
-                            id="userName" 
-                            name="email" 
-                            required
-                            value={formData.email}
-                            onChange={handleChange}
-                            style={{
-                              border: '0',
-                              borderRadius: '0',
-                              boxShadow: 'none',
-                              borderBottom: '1px solid #b5b5b5',
-                              letterSpacing: '0',
-                              padding: '10px 10px 10px 0px',
-                              appearance: 'auto',
-                              backgroundColor: 'transparent'
-                            }}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-md-12">
-                        <div 
-                          className="formGroup"
-                          style={{ marginBottom: '2.0rem', position: 'relative' }}
-                        >
-                          <label 
-                            htmlFor="password" 
-                            className="form-label"
-                            style={{ fontWeight: '600' }}
-                          >
-                            Password
-                          </label>
-                          <input 
-                            type="password" 
-                            className="form-control"
-                            id="password" 
-                            name="password" 
-                            required
-                            value={formData.password}
-                            onChange={handleChange}
-                            style={{
-                              border: '0',
-                              borderRadius: '0',
-                              boxShadow: 'none',
-                              borderBottom: '1px solid #b5b5b5',
-                              letterSpacing: '0',
-                              padding: '10px 10px 10px 0px',
-                              appearance: 'auto',
-                              backgroundColor: 'transparent'
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                
-                    <div className="mb-3 mt-5 text-center">
-                      <button 
-                        type="submit" 
-                        className="btn btn-primary"
-                        disabled={loading}
-                        style={{
-                          background: '#2e42e2',
-                          color: '#fff',
-                          padding: '7px 40px'
-                        }}
-                      >
-                        {loading ? 'Signing in...' : 'Sign In'}
-                      </button>
-                    </div>
+                      {loading ? (
+                        <>
+                          <CircularProgress size={20} sx={{ mr: 1, color: 'white' }} />
+                          Signing in...
+                        </>
+                      ) : (
+                        'Sign In'
+                      )}
+                    </Button>
+                  </Box>
+                </Stack>
+              </Box>
 
-                    <div className="d-flex justify-content-center links">
-                      Don't have an account?&nbsp;&nbsp;
-                      <Link 
-                        to="/signup"
-                        style={{ color: '#2e42e2', textDecoration: 'none' }}
-                      >
-                        Sign Up
-                      </Link>
-                    </div>
-                    <div className="d-flex justify-content-center">
-                      <Link 
-                        to="/forgot-password"
-                        style={{ color: '#2e42e2', textDecoration: 'none' }}
-                      >
-                        Forgot your password?
-                      </Link>
-                    </div>
-
-                    {/* /main form */}
-                  </div>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      {/* /sign up page */}
-    </div>
+              {/* Links */}
+              <Stack spacing={1} alignItems="center">
+                <Typography variant="body2" sx={{ color: '#4b4b4b' }}>
+                  Don't have an account?{' '}
+                  <MuiLink
+                    component={Link}
+                    to="/signup"
+                    sx={{
+                      color: '#2e42e2',
+                      textDecoration: 'none',
+                      fontWeight: 500,
+                      '&:hover': {
+                        textDecoration: 'underline',
+                      },
+                    }}
+                  >
+                    Sign Up
+                  </MuiLink>
+                </Typography>
+                <MuiLink
+                  component={Link}
+                  to="/forgot-password"
+                  sx={{
+                    color: '#2e42e2',
+                    textDecoration: 'none',
+                    fontSize: '14px',
+                    '&:hover': {
+                      textDecoration: 'underline',
+                    },
+                  }}
+                >
+                  Forgot your password?
+                </MuiLink>
+              </Stack>
+            </Stack>
+          </Paper>
+        </Container>
+      </Box>
   );
 };
 

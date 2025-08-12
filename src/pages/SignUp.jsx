@@ -2,8 +2,29 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import authService from '../services/auth.service';
+import {
+  Box,
+  Container,
+  TextField,
+  Button,
+  Typography,
+  Paper,
+  Stack,
+  Grid,
+  ToggleButton,
+  ToggleButtonGroup,
+  CircularProgress,
+  Link as MuiLink,
+  InputAdornment,
+  IconButton
+} from '@mui/material';
+import {
+  Person as PersonIcon,
+  Business as BusinessIcon,
+  Visibility,
+  VisibilityOff
+} from '@mui/icons-material';
 import logo from '../assets/logo.png';
-import './SignUp.css';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +37,8 @@ const SignUp = () => {
     role: 'retailer'
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -25,11 +48,13 @@ const SignUp = () => {
     });
   };
 
-  const handleRoleSelect = (role) => {
-    setFormData({
-      ...formData,
-      role: role
-    });
+  const handleRoleChange = (event, newRole) => {
+    if (newRole !== null) {
+      setFormData({
+        ...formData,
+        role: newRole
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -64,158 +89,408 @@ const SignUp = () => {
   };
 
   return (
-    <div className="skewed-bg bgGreySignUp">
-      <div className="container">
-        <br /><br />
-        <div className="form-wrapper">
-          <div className="row justify-content-center">
-            <div className="col-md-8">
-              <form method="POST" onSubmit={handleSubmit}>
-                <div className="signUpmainForm h-100">
-                  <div className="headerForm">
-                    <h1 style={{ fontWeight: 'bold', fontSize: '40px', fontFamily: 'inherit', fontStyle: 'normal', color: '#000' }}>
-                      Welcome to <img src={logo} alt="PickNDeal" style={{ height: '45px', verticalAlign: 'middle' }} />
-                    </h1>
-                    <p>Enter your details below</p>
-                  </div>
-                  
-                  <div className="selectProfile">
-                    <div 
-                      className={`userSelect ${formData.role === 'retailer' ? 'selected' : ''}`}
-                      onClick={() => handleRoleSelect('retailer')}
-                    >
-                      <svg className="user-icon" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2c2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4 1.79-4 4-4zm0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/>
-                      </svg>
-                      Retailer
-                    </div>
-                    <div 
-                      className={`userSelect ${formData.role === 'supplier' ? 'selected' : ''}`}
-                      onClick={() => handleRoleSelect('supplier')}
-                    >
-                      <svg className="user-icon" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2c2.21 0 4 1.79 4 4s-1.79 4-4 4-4-1.79-4-4 1.79-4 4-4zm0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/>
-                      </svg>
-                      Supplier
-                    </div>
-                  </div>
+    <Box
+        sx={{
+          minHeight: '100vh',
+          backgroundColor: '#f5f5f5',
+          display: 'flex',
+          alignItems: 'center',
+          py: 4,
+        }}
+      >
+        <Container maxWidth="md">
+          <Paper
+            elevation={3}
+            sx={{
+              p: 5,
+              borderRadius: '20px',
+              backgroundColor: '#fff',
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <Stack spacing={4}>
+              {/* Header */}
+              <Box sx={{ textAlign: 'center' }}>
+                {/* Mobile Layout */}
+                <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+                  <Typography
+                    variant="h4"
+                    component="h1"
+                    sx={{
+                      fontWeight: 'bold',
+                      color: '#000',
+                      mb: 2,
+                    }}
+                  >
+                    Welcome to
+                  </Typography>
+                  <Box sx={{ mb: 2 }}>
+                    <img src={logo} alt="PickNDeal" style={{ height: '45px' }} />
+                  </Box>
+                </Box>
 
-                  <div className="row">
-                    <div className="col-md-6 col-6">
-                      <div className="formGroup">
-                        <label htmlFor="firstName" className="form-label">First Name</label>
-                        <input
-                          required
-                          type="text"
-                          pattern="[a-zA-Z0-9\s]+"
-                          className="form-control"
-                          value={formData.firstName}
-                          onChange={handleChange}
-                          name="firstName"
-                          id="firstName"
-                        />
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-6">
-                      <div className="formGroup">
-                        <label htmlFor="lastName" className="form-label">Last Name</label>
-                        <input
-                          required
-                          type="text"
-                          pattern="[a-zA-Z0-9\s]+"
-                          className="form-control"
-                          value={formData.lastName}
-                          onChange={handleChange}
-                          name="lastName"
-                          id="lastName"
-                        />
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-6">
-                      <div className="formGroup">
-                        <label htmlFor="email" className="form-label">Email Address</label>
-                        <input
-                          required
-                          type="email"
-                          className="form-control"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          id="email"
-                        />
-                      </div>
-                    </div>
-                    <div className="col-md-6 col-6">
-                      <div className="formGroup">
-                        <label htmlFor="phone" className="form-label">Phone Number</label>
-                        <input
-                          required
-                          type="tel"
-                          pattern="[0-9]{8,15}"
-                          placeholder="12345678910"
-                          className="form-control"
-                          id="phone"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          name="phone"
-                        />
-                      </div>
-                    </div>
+                {/* Desktop Layout */}
+                <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                  <Typography
+                    variant="h4"
+                    component="h1"
+                    sx={{
+                      fontWeight: 'bold',
+                      color: '#000',
+                      mb: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 1,
+                    }}
+                  >
+                    Welcome to{' '}
+                    <img src={logo} alt="PickNDeal" style={{ height: '45px', verticalAlign: 'middle' }} />
+                  </Typography>
+                </Box>
 
-                    <div className="col-md-6">
-                      <div className="formGroup">
-                        <label htmlFor="password" className="form-label">Password</label>
-                        <div className="input-group mb-3">
-                          <input
-                            required
-                            type="password"
-                            className="form-control"
-                            id="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="formGroup">
-                        <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
-                        <div className="input-group mb-3">
-                          <input
-                            required
-                            type="password"
-                            className="form-control"
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: '#909097',
+                    fontWeight: 500,
+                  }}
+                >
+                  Enter your details below
+                </Typography>
+              </Box>
 
-                  <div className="mb-3 mt-5 text-center">
-                    <button type="submit" className="btn btn-primary" disabled={loading}>
-                      {loading ? 'Creating account...' : 'Sign Up'}
-                    </button>
-                  </div>
-                  <div className="mb-3 mt-5 text-center">
-                    <div className="login-link">
-                      Have an account?{' '}
-                      <Link to="/login" className="is-link has-text-brand">
-                        <strong>Sign In</strong>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+              {/* Role Selection */}
+              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <ToggleButtonGroup
+                  value={formData.role}
+                  exclusive
+                  onChange={handleRoleChange}
+                  aria-label="user role"
+                  sx={{ gap: 2 }}
+                >
+                  <ToggleButton value="retailer" aria-label="retailer">
+                    <Stack alignItems="center">
+                      <PersonIcon sx={{ fontSize: 40 }} />
+                      <Typography>Retailer</Typography>
+                    </Stack>
+                  </ToggleButton>
+                  <ToggleButton value="supplier" aria-label="supplier">
+                    <Stack alignItems="center">
+                      <BusinessIcon sx={{ fontSize: 40 }} />
+                      <Typography>Supplier</Typography>
+                    </Stack>
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+
+              {/* Form */}
+              <Box 
+                component="form" 
+                onSubmit={handleSubmit}
+                sx={{
+                  '& > .MuiGrid-container': {
+                    maxWidth: '580px',
+                    margin: '0 auto',
+                    '@media (min-width: 900px)': {
+                      justifyContent: 'space-between',
+                      '& > .MuiGrid-item:nth-of-type(even)': {
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                      }
+                    },
+                    '@media (max-width: 599px)': {
+                      display: 'block',
+                      maxWidth: 'none',
+                      '& > .MuiGrid-item': {
+                        maxWidth: '100%',
+                        flexBasis: '100%',
+                        paddingLeft: 0,
+                        paddingRight: 0,
+                        paddingTop: '16px',
+                      }
+                    }
+                  }
+                }}
+              >
+                <Grid container spacing={{ xs: 2, sm: 3 }}>
+                  <Grid 
+                    item 
+                    xs={12} 
+                    sm={12} 
+                    md={6}
+                    sx={{
+                      '@media (min-width: 900px)': {
+                        width: 'fit-content',
+                      }
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      label="First Name"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      required
+                      variant="standard"
+                      inputProps={{ pattern: '[a-zA-Z0-9\\s]+' }}
+                      InputLabelProps={{
+                        sx: { fontWeight: 600 }
+                      }}
+                      sx={{
+                        '@media (min-width: 900px)': {
+                          width: '120.06%',
+                        },
+                        '& .MuiInput-root': {
+                          minHeight: '48px',
+                        }
+                      }}
+                    />
+                  </Grid>
+                  <Grid 
+                    item 
+                    xs={12} 
+                    sm={12} 
+                    md={6}
+                    sx={{
+                      '@media (min-width: 900px)': {
+                        width: 'fit-content',
+                      }
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      label="Last Name"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      required
+                      variant="standard"
+                      inputProps={{ pattern: '[a-zA-Z0-9\\s]+' }}
+                      InputLabelProps={{
+                        sx: { fontWeight: 600 }
+                      }}
+                      sx={{
+                        '@media (min-width: 900px)': {
+                          width: '120.06%',
+                        },
+                        '& .MuiInput-root': {
+                          minHeight: '48px',
+                        }
+                      }}
+                    />
+                  </Grid>
+                  <Grid 
+                    item 
+                    xs={12} 
+                    sm={12} 
+                    md={6}
+                    sx={{
+                      '@media (min-width: 900px)': {
+                        width: 'fit-content',
+                      }
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      label="Email Address"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      variant="standard"
+                      InputLabelProps={{
+                        sx: { fontWeight: 600 }
+                      }}
+                      sx={{
+                        '@media (min-width: 900px)': {
+                          width: '120.06%',
+                        },
+                        '& .MuiInput-root': {
+                          minHeight: '48px',
+                        }
+                      }}
+                    />
+                  </Grid>
+                  <Grid 
+                    item 
+                    xs={12} 
+                    sm={12} 
+                    md={6}
+                    sx={{
+                      '@media (min-width: 900px)': {
+                        width: 'fit-content',
+                      }
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      label="Phone Number"
+                      name="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      required
+                      variant="standard"
+                      placeholder="12345678910"
+                      inputProps={{ pattern: '[0-9]{8,15}' }}
+                      InputLabelProps={{
+                        sx: { fontWeight: 600 }
+                      }}
+                      sx={{
+                        '@media (min-width: 900px)': {
+                          width: '120.06%',
+                        },
+                        '& .MuiInput-root': {
+                          minHeight: '48px',
+                        }
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      variant="standard"
+                      InputLabelProps={{
+                        sx: { fontWeight: 600 }
+                      }}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowPassword(!showPassword)}
+                              edge="end"
+                              size="small"
+                            >
+                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        '& .MuiInput-root': {
+                          minHeight: '48px',
+                          position: 'relative',
+                          '& input': {
+                            paddingRight: '48px',
+                          }
+                        },
+                        '& .MuiInputAdornment-root': {
+                          position: 'absolute',
+                          right: '8px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          width: '40px',
+                          height: '24px',
+                          justifyContent: 'center',
+                        }
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Confirm Password"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      required
+                      variant="standard"
+                      InputLabelProps={{
+                        sx: { fontWeight: 600 }
+                      }}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle confirm password visibility"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              edge="end"
+                              size="small"
+                            >
+                              {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        '& .MuiInput-root': {
+                          minHeight: '48px',
+                          position: 'relative',
+                          '& input': {
+                            paddingRight: '48px',
+                          }
+                        },
+                        '& .MuiInputAdornment-root': {
+                          position: 'absolute',
+                          right: '8px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          width: '40px',
+                          height: '24px',
+                          justifyContent: 'center',
+                        }
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Box sx={{ mt: 5, textAlign: 'center' }}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    disabled={loading}
+                    fullWidth
+                    sx={{
+                      maxWidth: '200px',
+                      position: 'relative',
+                    }}
+                  >
+                    {loading ? (
+                      <>
+                        <CircularProgress size={20} sx={{ mr: 1, color: 'white' }} />
+                        Creating account...
+                      </>
+                    ) : (
+                      'Sign Up'
+                    )}
+                  </Button>
+                </Box>
+              </Box>
+
+              {/* Login Link */}
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="body2" sx={{ color: '#4b4b4b' }}>
+                  Have an account?{' '}
+                  <MuiLink
+                    component={Link}
+                    to="/login"
+                    sx={{
+                      color: '#2e42e2',
+                      textDecoration: 'none',
+                      fontWeight: 600,
+                      '&:hover': {
+                        textDecoration: 'underline',
+                      },
+                    }}
+                  >
+                    Sign In
+                  </MuiLink>
+                </Typography>
+              </Box>
+            </Stack>
+          </Paper>
+        </Container>
+      </Box>
   );
 };
 
