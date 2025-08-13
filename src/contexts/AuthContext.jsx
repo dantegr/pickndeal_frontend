@@ -39,20 +39,33 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await authService.loginWithPassword(email, password);
-      setUser(response.user);
-      setIsAuthenticated(true);
-      return { success: true, data: response };
+      if (response.isSuccess && response.token) {
+        // Store user data from response
+        if (response.user) {
+          setUser(response.user);
+          localStorage.setItem('user', JSON.stringify(response.user));
+        }
+        setIsAuthenticated(true);
+        return { success: true, data: response };
+      }
+      return { success: false, error: response.message || 'Login failed' };
     } catch (error) {
       return { success: false, error: error.response?.data?.message || 'Login failed' };
     }
   };
 
-  const loginWithOtp = async (phone, otp) => {
+  const loginWithOtp = async (phone_number, verification_code) => {
     try {
-      const response = await authService.verify(phone, otp);
-      setUser(response.user);
-      setIsAuthenticated(true);
-      return { success: true, data: response };
+      const response = await authService.verify(phone_number, verification_code);
+      if (response.token) {
+        const userData = await authService.getUserDetails();
+        if (userData.data?.user) {
+          setUser(userData.data.user);
+          setIsAuthenticated(true);
+        }
+        return { success: true, data: response };
+      }
+      return { success: false, error: response.message || 'Verification failed' };
     } catch (error) {
       return { success: false, error: error.response?.data?.message || 'Verification failed' };
     }

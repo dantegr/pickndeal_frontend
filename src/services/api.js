@@ -8,7 +8,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  withCredentials: true,
+  withCredentials: false, // Set to false for CORS with different ports
 });
 
 api.interceptors.request.use(

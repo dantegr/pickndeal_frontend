@@ -68,19 +68,27 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-      const userData = {
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        email: formData.email,
-        phone_number: formData.phone,
-        password: formData.password,
-        password_confirmation: formData.confirmPassword,
-        role: formData.role
-      };
-
-      await authService.submitUserDetail(userData);
-      toast.success('Registration successful! Please login.');
-      navigate('/login');
+      // Step 1: Get OTP for phone number
+      const otpResponse = await authService.getOtp(formData.phone);
+      
+      if (otpResponse.verification_code) {
+        // Step 2: Auto-verify with OTP (in production, user would enter OTP)
+        const verifyResponse = await authService.verify(formData.phone, otpResponse.verification_code);
+        
+        if (verifyResponse.token) {
+          // Step 3: Submit user details
+          const userData = {
+            name: `${formData.firstName} ${formData.lastName}`,
+            email: formData.email,
+            password: formData.password
+          };
+          
+          await authService.submitUserDetail(userData);
+          
+          toast.success('Registration successful! Please login.');
+          navigate('/login');
+        }
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Registration failed');
     } finally {
