@@ -39,7 +39,14 @@ const Login = () => {
       const result = await login(formData.email, formData.password);
       if (result.success) {
         toast.success('Login successful!');
-        navigate('/dashboard');
+        
+        // Check if profile is completed
+        const user = result.data?.user;
+        if (user && user.is_profile_completed === 0) {
+          navigate('/profile');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
         toast.error(result.error || 'Login failed');
       }

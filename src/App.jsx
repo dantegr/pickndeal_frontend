@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import theme from './theme/theme';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 
 import Login from './pages/Login';
@@ -23,6 +24,13 @@ import AddCatalog from './pages/AddCatalog';
 import Quotes from './pages/Quotes';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
+import DeleteAccount from './pages/DeleteAccount';
+import Chat from './pages/Chat';
+import Invoice from './pages/Invoice';
+import SubmitQuote from './pages/SubmitQuote';
+import PublicProfile from './pages/PublicProfile';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,19 +53,80 @@ function App() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<Terms />} />
             
             <Route element={<PrivateRoute />}>
+              {/* Profile completion route - doesn't require profile to be complete */}
+              <Route path="/profile" element={<Profile />} />
+              
+              {/* Protected routes that require profile completion */}
               <Route element={<Layout />}>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/profile/:userId" element={<Profile />} />
-                <Route path="/requirements" element={<Requirements />} />
-                <Route path="/requirements/add" element={<AddRequirement />} />
-                <Route path="/requirements/:id" element={<ViewRequirement />} />
-                <Route path="/catalog" element={<Catalog />} />
-                <Route path="/catalog/add" element={<AddCatalog />} />
-                <Route path="/quotes" element={<Quotes />} />
+                <Route path="/" element={
+                  <ProtectedRoute>
+                    <Navigate to="/dashboard" replace />
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/requirements" element={
+                  <ProtectedRoute>
+                    <Requirements />
+                  </ProtectedRoute>
+                } />
+                <Route path="/requirements/add" element={
+                  <ProtectedRoute>
+                    <AddRequirement />
+                  </ProtectedRoute>
+                } />
+                <Route path="/requirements/:id" element={
+                  <ProtectedRoute>
+                    <ViewRequirement />
+                  </ProtectedRoute>
+                } />
+                <Route path="/catalog" element={
+                  <ProtectedRoute>
+                    <Catalog />
+                  </ProtectedRoute>
+                } />
+                <Route path="/catalog/add" element={
+                  <ProtectedRoute>
+                    <AddCatalog />
+                  </ProtectedRoute>
+                } />
+                <Route path="/quotes" element={
+                  <ProtectedRoute>
+                    <Quotes />
+                  </ProtectedRoute>
+                } />
+                <Route path="/chat" element={
+                  <ProtectedRoute>
+                    <Chat />
+                  </ProtectedRoute>
+                } />
+                <Route path="/invoice/:id" element={
+                  <ProtectedRoute>
+                    <Invoice />
+                  </ProtectedRoute>
+                } />
+                <Route path="/requirements/:requirementId/quote" element={
+                  <ProtectedRoute>
+                    <SubmitQuote />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile/public/:userId" element={
+                  <ProtectedRoute>
+                    <PublicProfile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/delete-account" element={
+                  <ProtectedRoute>
+                    <DeleteAccount />
+                  </ProtectedRoute>
+                } />
               </Route>
             </Route>
           </Routes>
