@@ -80,7 +80,8 @@ const SignUp = () => {
           const userData = {
             name: `${formData.firstName} ${formData.lastName}`,
             email: formData.email,
-            password: formData.password
+            password: formData.password,
+            role: formData.role
           };
           
           await authService.submitUserDetail(userData);

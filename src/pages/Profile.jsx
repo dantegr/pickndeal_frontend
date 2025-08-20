@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
-import axios from 'axios';
+import api from '../services/api';
 import {
   Box,
   Container,
@@ -75,18 +75,19 @@ const Profile = () => {
   const fetchInitialData = async () => {
     try {
       // Fetch countries
-      const countriesRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/user/countries`);
+      const countriesRes = await api.get('/user/countries');
       setCountries(countriesRes.data || []);
       
-      // Fetch categories
-      const categoriesRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/user/categories`);
+      // Fetch categories based on user role
+      const userRole = user?.userRole?.role || 'retailer';
+      const categoriesRes = await api.get('/user/categories', {
+        params: { role: userRole }
+      });
       setCategories(categoriesRes.data || []);
       
       // If user has existing profile data, load it
       if (user?.id) {
-        const profileRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/user/profile`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
-        });
+        const profileRes = await api.get('/user/profile');
         if (profileRes.data?.profile) {
           const profile = profileRes.data.profile;
           setFormData(prev => ({
@@ -105,13 +106,18 @@ const Profile = () => {
           
           // Load states if country is selected
           if (profile.country_id) {
-            const statesRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/user/states/${profile.country_id}`);
+            const statesRes = await api.get(`/user/states/${profile.country_id}`);
             setStates(statesRes.data || []);
           }
           
           // Load cities if state is selected
-          if (profile.state_id) {
-            const citiesRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/user/cities/${profile.state_id}`);
+          if (profile.state_id && profile.country_id) {
+            const citiesRes = await api.get('/user/cities', {
+              params: {
+                countryId: profile.country_id,
+                stateId: profile.state_id
+              }
+            });
             setCities(citiesRes.data || []);
           }
         }
@@ -127,7 +133,7 @@ const Profile = () => {
     
     if (countryId) {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/user/states/${countryId}`);
+        const response = await api.get(`/user/states/${countryId}`);
         setStates(response.data || []);
         setCities([]);
       } catch (error) {
@@ -143,9 +149,14 @@ const Profile = () => {
     const stateId = e.target.value;
     setFormData({ ...formData, state_id: stateId, city_id: '' });
     
-    if (stateId) {
+    if (stateId && formData.country_id) {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/user/cities/${stateId}`);
+        const response = await api.get('/user/cities', {
+          params: {
+            countryId: formData.country_id,
+            stateId: stateId
+          }
+        });
         setCities(response.data || []);
       } catch (error) {
         console.error('Error fetching cities:', error);
@@ -198,15 +209,9 @@ const Profile = () => {
         timeSlots: JSON.stringify(formData.timeSlots)
       };
 
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/save/timeslots`,
-        payload,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
-        }
-      );
+      const response = await api.post('/save/profile', payload);
 
-      if (response.data?.type === 'success') {
+      if (response.status === 200 && response.data?.type === 'success') {
         // Update user in context
         updateUser({ ...user, is_profile_completed: 1 });
         
