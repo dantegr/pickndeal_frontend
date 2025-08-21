@@ -1,6 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import {
+  Box,
+  Typography,
+  Paper,
+  Grid,
+  Card,
+  CardContent,
+  CircularProgress,
+  Skeleton,
+} from '@mui/material';
+import {
+  TrendingUp,
+  Assignment,
+  FormatQuote,
+  Inventory,
+  AccessTime
+} from '@mui/icons-material';
+import SupplierGrid from '../components/SupplierGrid';
+import RequirementGrid from '../components/RequirementGrid';
 import api from '../services/api';
 
 const Dashboard = () => {
@@ -11,17 +29,23 @@ const Dashboard = () => {
     catalog: 0,
     activeRequests: 0
   });
+  const [suppliers, setSuppliers] = useState(null);
+  const [requirements, setRequirements] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [contentLoading, setContentLoading] = useState(true);
+
+  const isRetailer = user?.userRole?.role === 'retailer';
+  const isSupplier = user?.userRole?.role === 'supplier';
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+    fetchMainContent();
+  }, [user]);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      // These endpoints would need to be created in the Laravel backend
-      // For now, using placeholder data
+      // These would be actual API calls
       setStats({
         requirements: 5,
         quotes: 12,
@@ -35,138 +59,186 @@ const Dashboard = () => {
     }
   };
 
-  const quickActions = [
-    { label: 'Add Requirement', path: '/requirements/add', icon: '➕', color: 'bg-blue-500' },
-    { label: 'View Catalog', path: '/catalog', icon: '📦', color: 'bg-green-500' },
-    { label: 'My Quotes', path: '/quotes', icon: '💬', color: 'bg-yellow-500' },
-    { label: 'Profile Settings', path: '/profile', icon: '⚙️', color: 'bg-purple-500' },
-  ];
+  const fetchMainContent = async () => {
+    try {
+      setContentLoading(true);
+      if (isRetailer) {
+        // Fetch suppliers for retailer
+        // const response = await api.get('/suppliers/nearby');
+        // setSuppliers(response.data);
+        // Using mock data for now
+        setSuppliers(undefined); // Will use mock data from SupplierGrid
+      } else if (isSupplier) {
+        // Fetch requirements for supplier
+        // const response = await api.get('/requirements/available');
+        // setRequirements(response.data);
+        // Using mock data for now
+        setRequirements(undefined); // Will use mock data from RequirementGrid
+      }
+    } catch (error) {
+      console.error('Error fetching content:', error);
+    } finally {
+      setContentLoading(false);
+    }
+  };
+
+  const StatCard = ({ title, value, icon, color }) => (
+    <Card
+      sx={{
+        height: '100%',
+        background: `linear-gradient(135deg, ${color}15 0%, ${color}05 100%)`,
+        border: `1px solid ${color}20`,
+      }}
+    >
+      <CardContent>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box>
+            <Typography color="text.secondary" gutterBottom variant="overline">
+              {title}
+            </Typography>
+            <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', color }}>
+              {loading ? <Skeleton width={60} /> : value}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              backgroundColor: color,
+              borderRadius: '50%',
+              width: 56,
+              height: 56,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {React.cloneElement(icon, { sx: { color: 'white', fontSize: 28 } })}
+          </Box>
+        </Box>
+      </CardContent>
+    </Card>
+  );
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">
+    <Box>
+      {/* Welcome Section */}
+      <Box sx={{ mb: 4 }}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 'bold',
+            color: '#4b4b4b',
+            mb: 1,
+          }}
+        >
           Welcome back, {user?.name || 'User'}!
-        </h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Here's what's happening with your account today.
-        </p>
-      </div>
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          {isRetailer 
+            ? "Here's your marketplace overview and available suppliers"
+            : "Check out the latest requirements matching your services"}
+        </Typography>
+      </Box>
 
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bg-blue-500 rounded-md p-3">
-                  <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">Requirements</dt>
-                    <dd className="text-lg font-semibold text-gray-900">{stats.requirements}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
+        {/* Stats Grid */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              title="Total Requirements"
+              value={stats.requirements}
+              icon={<Assignment />}
+              color="#2e42e2"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              title="Active Quotes"
+              value={stats.quotes}
+              icon={<FormatQuote />}
+              color="#4caf50"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              title="Catalog Items"
+              value={stats.catalog}
+              icon={<Inventory />}
+              color="#ff9800"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              title="Active Requests"
+              value={stats.activeRequests}
+              icon={<AccessTime />}
+              color="#9c27b0"
+            />
+          </Grid>
+        </Grid>
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bg-green-500 rounded-md p-3">
-                  <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                  </svg>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">Quotes</dt>
-                    <dd className="text-lg font-semibold text-gray-900">{stats.quotes}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
+        {/* Main Content Area */}
+        <Paper
+          sx={{
+            p: 3,
+            borderRadius: 2,
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+          }}
+        >
+          {contentLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <>
+              {isRetailer && <SupplierGrid suppliers={suppliers} />}
+              {isSupplier && <RequirementGrid requirements={requirements} />}
+              {!isRetailer && !isSupplier && (
+                <Box sx={{ textAlign: 'center', py: 8 }}>
+                  <Typography variant="h6" color="text.secondary">
+                    Please complete your profile to access the marketplace
+                  </Typography>
+                </Box>
+              )}
+            </>
+          )}
+        </Paper>
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                  <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                  </svg>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">Catalog Items</dt>
-                    <dd className="text-lg font-semibold text-gray-900">{stats.catalog}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bg-purple-500 rounded-md p-3">
-                  <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">Active Requests</dt>
-                    <dd className="text-lg font-semibold text-gray-900">{stats.activeRequests}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">Quick Actions</h2>
-            </div>
-            <div className="p-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {quickActions.map((action) => (
-                  <Link
-                    key={action.path}
-                    to={action.path}
-                    className={`${action.color} hover:opacity-90 text-white rounded-lg p-4 text-center transition-opacity`}
-                  >
-                    <div className="text-3xl mb-2">{action.icon}</div>
-                    <div className="text-sm font-medium">{action.label}</div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg shadow">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
-              </div>
-              <div className="p-6">
-                <p className="text-gray-500 text-sm">No recent activity to display.</p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">Notifications</h2>
-              </div>
-              <div className="p-6">
-                <p className="text-gray-500 text-sm">No new notifications.</p>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+        {/* Activity Section */}
+        <Grid container spacing={3} sx={{ mt: 3 }}>
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: 3, height: '100%' }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#4b4b4b' }}>
+                Recent Activity
+              </Typography>
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
+                  No recent activity to display
+                </Typography>
+              </Box>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: 3, height: '100%' }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#4b4b4b' }}>
+                Quick Stats
+              </Typography>
+              <Box sx={{ mt: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <TrendingUp sx={{ mr: 2, color: '#4caf50' }} />
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Growth Rate
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                      +12.5%
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
+    </Box>
   );
 };
 
