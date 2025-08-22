@@ -1,5 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getDistance } from 'geolib';
+import { useProfile } from '../contexts/ProfileContext';
 import {
   Card,
   CardContent,
@@ -21,6 +23,7 @@ import {
 
 const SupplierCard = ({ supplier }) => {
   const navigate = useNavigate();
+  const { coordinates: userCoordinates } = useProfile();
 
   const handleViewProfile = () => {
     navigate(`/user/public/profile/${supplier.id}`);
@@ -34,6 +37,28 @@ const SupplierCard = ({ supplier }) => {
     const colors = ['primary', 'secondary', 'error', 'warning', 'info', 'success'];
     return colors[index % colors.length];
   };
+
+  // Calculate distance between user and supplier
+  const calculateDistance = () => {
+    if (!userCoordinates || !supplier.lat || !supplier.lng) {
+      return 'N/A';
+    }
+
+    try {
+      const distance = getDistance(
+        { latitude: userCoordinates.lat, longitude: userCoordinates.lng },
+        { latitude: supplier.lat, longitude: supplier.lng }
+      );
+      
+      // Convert from meters to kilometers and round to 1 decimal place
+      return (distance / 1000).toFixed(1);
+    } catch (error) {
+      console.error('Error calculating distance:', error);
+      return 'N/A';
+    }
+  };
+
+  const distance = calculateDistance();
 
   return (
     <Card
@@ -116,7 +141,7 @@ const SupplierCard = ({ supplier }) => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <LocationOn sx={{ fontSize: 16, color: '#909097' }} />
             <Typography variant="body2" color="text.secondary">
-              Distance: <strong>{supplier.distance || 'N/A'}</strong> KM
+              Distance: <strong>{distance}</strong> KM
             </Typography>
           </Box>
         </Stack>

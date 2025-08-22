@@ -1,15 +1,29 @@
 import api from './api';
 
 const authService = {
+  // For signup - ensures phone number is unique
+  async getOtpForSignup(phone_number) {
+    const response = await api.post('/getOtpForSignup', { phone_number });
+    return response.data;
+  },
+
+  // For login with OTP
+  async getOtpForLogin(phone_number) {
+    const response = await api.post('/getOtpForLogin', { phone_number });
+    return response.data;
+  },
+
+  // For updates (protected - requires auth)
   async getOtp(phone_number) {
     const response = await api.post('/getOtp', { phone_number });
     return response.data;
   },
 
-  async verify(phone_number, verification_code) {
+  async verify(phone_number, verification_code, section = 'signup') {
     const response = await api.post('/verify', { 
       phone_number, 
-      verification_code: parseInt(verification_code) 
+      verification_code: parseInt(verification_code),
+      section 
     });
     if (response.data.token) {
       localStorage.setItem('auth_token', response.data.token);

@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import theme from './theme/theme';
 import { AuthProvider } from './contexts/AuthContext';
+import { ProfileProvider } from './contexts/ProfileContext';
 import PrivateRoute from './components/PrivateRoute';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
@@ -47,21 +48,22 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AuthProvider>
-          <Router>
-            <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<Terms />} />
-            
-            <Route element={<PrivateRoute />}>
-              {/* Profile completion route - doesn't require profile to be complete */}
-              <Route path="/profile" element={<Profile />} />
+          <ProfileProvider>
+            <Router>
+              <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<Terms />} />
               
-              {/* Protected routes that require profile completion */}
-              <Route element={<Layout />}>
+              <Route element={<PrivateRoute />}>
+                {/* Profile completion route - doesn't require profile to be complete */}
+                <Route path="/profile" element={<Profile />} />
+                
+                {/* Protected routes that require profile completion */}
+                <Route element={<Layout />}>
                 <Route path="/" element={
                   <ProtectedRoute>
                     <Navigate to="/dashboard" replace />
@@ -127,10 +129,11 @@ function App() {
                     <DeleteAccount />
                   </ProtectedRoute>
                 } />
+                </Route>
               </Route>
-            </Route>
-          </Routes>
-        </Router>
+            </Routes>
+          </Router>
+        </ProfileProvider>
         <ToastContainer
           position="top-right"
           autoClose={3000}

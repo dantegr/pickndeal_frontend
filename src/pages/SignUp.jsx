@@ -68,12 +68,12 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-      // Step 1: Get OTP for phone number
-      const otpResponse = await authService.getOtp(formData.phone);
+      // Step 1: Get OTP for signup (ensures phone number is unique)
+      const otpResponse = await authService.getOtpForSignup(formData.phone);
       
       if (otpResponse.verification_code) {
         // Step 2: Auto-verify with OTP (in production, user would enter OTP)
-        const verifyResponse = await authService.verify(formData.phone, otpResponse.verification_code);
+        const verifyResponse = await authService.verify(formData.phone, otpResponse.verification_code, 'signup');
         
         if (verifyResponse.token) {
           // Step 3: Submit user details
