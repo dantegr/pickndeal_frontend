@@ -36,11 +36,15 @@ const Dashboard = () => {
 
   const isRetailer = user?.userRole?.role === 'retailer';
   const isSupplier = user?.userRole?.role === 'supplier';
+  
 
   useEffect(() => {
     fetchDashboardData();
     fetchMainContent();
   }, [user]);
+  useEffect(() => {
+    console.log(user)
+  },[])
 
   const fetchDashboardData = async () => {
     try {

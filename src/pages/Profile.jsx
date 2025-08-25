@@ -23,7 +23,9 @@ import {
   Chip,
   Alert,
   FormHelperText,
-  Autocomplete
+  Autocomplete,
+  Checkbox,
+  FormControlLabel
 } from '@mui/material';
 import {
   Business,
@@ -52,12 +54,14 @@ const Profile = () => {
     city_id: '',
     zip: '',
     aboutme: '',
-    radius: '10',
     timeSlots: [],
     cats: [],
     lat: null,
-    lng: null
+    lng: null,
+    deliveryRadius: null
   });
+  
+  const [deliveryAvailable, setDeliveryAvailable] = useState(false);
 
   const steps = ['Business Information', 'Location Details', 'Categories & Availability'];
 
@@ -99,10 +103,15 @@ const Profile = () => {
             city_id: profile.city_id || '',
             zip: profile.pin || '',
             aboutme: profile.about_us || '',
-            radius: profile.radius || '10',
             timeSlots: profile.time_slots ? JSON.parse(profile.time_slots) : [],
-            cats: profileRes.data.cats?.map(c => c.category_id) || []
+            cats: profileRes.data.cats?.map(c => c.category_id) || [],
+            deliveryRadius: profile.deliveryRadius || null
           }));
+          
+          // Set delivery availability if deliveryRadius exists
+          if (profile.deliveryRadius) {
+            setDeliveryAvailable(true);
+          }
           
           // Load states if country is selected
           if (profile.country_id) {
@@ -208,6 +217,11 @@ const Profile = () => {
         userid: user.id,
         timeSlots: JSON.stringify(formData.timeSlots)
       };
+      
+      // Only include deliveryRadius if user is supplier and delivery is available
+      if (user?.userRole?.role === 'supplier' && deliveryAvailable && formData.deliveryRadius) {
+        payload.deliveryRadius = formData.deliveryRadius;
+      }
 
       const response = await api.post('/save/profile', payload);
 
@@ -260,15 +274,39 @@ const Profile = () => {
             />
 
             {user?.userRole?.role === 'supplier' && (
-              <TextField
-                fullWidth
-                label="Service Radius (km)"
-                name="radius"
-                type="number"
-                value={formData.radius}
-                onChange={handleChange}
-                helperText="Maximum distance you can serve customers"
-              />
+              <>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={deliveryAvailable}
+                      onChange={(e) => {
+                        setDeliveryAvailable(e.target.checked);
+                        if (!e.target.checked) {
+                          setFormData({ ...formData, deliveryRadius: null });
+                        }
+                      }}
+                    />
+                  }
+                  label="Ability to Deliver"
+                />
+                
+                {deliveryAvailable && (
+                  <TextField
+                    fullWidth
+                    label="Delivery Radius (km)"
+                    name="deliveryRadius"
+                    type="number"
+                    value={formData.deliveryRadius || ''}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        deliveryRadius: e.target.value ? Number(e.target.value) : null
+                      });
+                    }}
+                    helperText="Maximum distance for delivery services"
+                  />
+                )}
+              </>
             )}
           </Stack>
         );

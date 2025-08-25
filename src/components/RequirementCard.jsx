@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Card,
@@ -10,6 +10,8 @@ import {
   Button,
   Stack,
   Divider,
+  IconButton,
+  Collapse,
 } from '@mui/material';
 import {
   AccessTime,
@@ -17,11 +19,26 @@ import {
   Category,
   LocalOffer,
   Visibility,
-  Send
+  Send,
+  ExpandMore,
+  ExpandLess
 } from '@mui/icons-material';
 
 const RequirementCard = ({ requirement }) => {
   const navigate = useNavigate();
+  const [expanded, setExpanded] = useState(false);
+  const [showExpandButton, setShowExpandButton] = useState(false);
+
+  useEffect(() => {
+    // Simple check based on character count
+    // Assuming roughly 80-100 characters fit in 2 lines for typical card width
+    const characterThreshold = 150; // Adjust based on your typical card width
+    if (requirement.description && requirement.description.length > characterThreshold) {
+      setShowExpandButton(true);
+    } else {
+      setShowExpandButton(false);
+    }
+  }, [requirement.description]);
 
   const handleViewDetails = () => {
     navigate(`/requirements/view/${requirement.id}`);
@@ -29,6 +46,10 @@ const RequirementCard = ({ requirement }) => {
 
   const handleSubmitQuote = () => {
     navigate(`/quotes/submit/${requirement.id}`);
+  };
+
+  const toggleExpanded = () => {
+    setExpanded(!expanded);
   };
 
   const getStatusColor = (status) => {
@@ -97,21 +118,40 @@ const RequirementCard = ({ requirement }) => {
           </Box>
         </Box>
 
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{
-            mb: 2,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            minHeight: '2.5em',
-          }}
-        >
-          {requirement.description}
-        </Typography>
+        <Box sx={{ mb: 2 }}>
+          <Collapse 
+            in={expanded} 
+            collapsedSize={45}
+          >
+            <Typography
+              variant="body2"
+              color="text.secondary"
+            >
+              {requirement.description}
+            </Typography>
+          </Collapse>
+          {showExpandButton && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
+              <IconButton
+                size="small"
+                onClick={toggleExpanded}
+                sx={{
+                  padding: '2px',
+                  color: '#2e42e2',
+                  '&:hover': {
+                    backgroundColor: 'rgba(46, 66, 226, 0.04)',
+                  },
+                }}
+              >
+                {expanded ? (
+                  <ExpandLess fontSize="small" />
+                ) : (
+                  <ExpandMore fontSize="small" />
+                )}
+              </IconButton>
+            </Box>
+          )}
+        </Box>
 
         <Stack spacing={1.5}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
