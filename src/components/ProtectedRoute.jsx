@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children, requireProfileComplete = true }) => {
 
   // Check if profile needs to be completed
   if (requireProfileComplete && user?.is_profile_completed === 0) {
-    return <Navigate to="/profile" replace />;
+    return <Navigate to="/complete-profile" replace />;
   }
 
   return children;

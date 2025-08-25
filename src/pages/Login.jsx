@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
@@ -24,6 +24,17 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Check if user is already logged in
+    const authToken = localStorage.getItem('auth_token');
+    const user = localStorage.getItem('user');
+    
+    if (authToken && user) {
+      // Redirect to dashboard if already authenticated
+      navigate('/dashboard');
+    }
+  }, [navigate]);
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -43,7 +54,7 @@ const Login = () => {
         // Check if profile is completed
         const user = result.data?.user;
         if (user && user.is_profile_completed === 0) {
-          navigate('/profile');
+          navigate('/complete-profile');
         } else {
           navigate('/dashboard');
         }

@@ -35,7 +35,7 @@ import {
   Info
 } from '@mui/icons-material';
 
-const Profile = () => {
+const CompleteProfile = () => {
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -572,4 +572,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default CompleteProfile;

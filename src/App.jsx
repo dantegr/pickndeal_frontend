@@ -16,7 +16,7 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
-import Profile from './pages/Profile';
+import CompleteProfile from './pages/CompleteProfile';
 import Requirements from './pages/Requirements';
 import AddRequirement from './pages/AddRequirement';
 import ViewRequirement from './pages/ViewRequirement';
@@ -60,7 +60,7 @@ function App() {
               
               <Route element={<PrivateRoute />}>
                 {/* Profile completion route - doesn't require profile to be complete */}
-                <Route path="/profile" element={<Profile />} />
+                <Route path="/complete-profile" element={<CompleteProfile />} />
                 
                 {/* Protected routes that require profile completion */}
                 <Route element={<Layout />}>

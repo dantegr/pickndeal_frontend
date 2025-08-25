@@ -117,7 +117,7 @@ const DeleteAccount = () => {
             
             <Button
               variant="outlined"
-              onClick={() => navigate('/profile')}
+              onClick={() => navigate('/complete-profile')}
               disabled={loading}
             >
               Cancel

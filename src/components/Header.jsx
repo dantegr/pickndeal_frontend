@@ -179,7 +179,7 @@ const Header = () => {
         <ListItem disablePadding>
           <ListItemButton
             component={Link}
-            to="/profile"
+            to="/complete-profile"
             onClick={handleDrawerToggle}
           >
             <ListItemIcon><Person /></ListItemIcon>
@@ -313,7 +313,7 @@ const Header = () => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              <MenuItem component={Link} to="/profile" onClick={handleCloseUserMenu}>
+              <MenuItem component={Link} to="/complete-profile" onClick={handleCloseUserMenu}>
                 <ListItemIcon><Person fontSize="small" /></ListItemIcon>
                 <Typography textAlign="center">Profile</Typography>
               </MenuItem>
