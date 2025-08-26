@@ -32,6 +32,7 @@ import Chat from './pages/Chat';
 import Invoice from './pages/Invoice';
 import SubmitQuote from './pages/SubmitQuote';
 import PublicProfile from './pages/PublicProfile';
+import AccountSettings from './pages/AccountSettings';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -127,6 +128,11 @@ function App() {
                 <Route path="/delete-account" element={
                   <ProtectedRoute>
                     <DeleteAccount />
+                  </ProtectedRoute>
+                } />
+                <Route path="/account-settings" element={
+                  <ProtectedRoute>
+                    <AccountSettings />
                   </ProtectedRoute>
                 } />
                 </Route>

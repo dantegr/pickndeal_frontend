@@ -179,11 +179,11 @@ const Header = () => {
         <ListItem disablePadding>
           <ListItemButton
             component={Link}
-            to="/complete-profile"
+            to="/account-settings"
             onClick={handleDrawerToggle}
           >
             <ListItemIcon><Person /></ListItemIcon>
-            <ListItemText primary="My Profile" />
+            <ListItemText primary="Account Settings" />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
@@ -272,8 +272,11 @@ const Header = () => {
 
               {!isMobile && (
                 <>
-                  <Tooltip title="Open settings">
-                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Tooltip title="Account Settings">
+                    <IconButton 
+                      onClick={() => navigate('/account-settings')} 
+                      sx={{ p: 0 }}
+                    >
                       <Avatar sx={{ bgcolor: '#2e42e2' }}>
                         {user?.name?.charAt(0).toUpperCase()}
                       </Avatar>

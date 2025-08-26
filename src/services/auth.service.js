@@ -69,6 +69,15 @@ const authService = {
     return response.data;
   },
 
+  async changePassword(oldPassword, newPassword, confirmPassword) {
+    const response = await api.post('/change-password', {
+      old_password: oldPassword,
+      new_password: newPassword,
+      confirm_password: confirmPassword
+    });
+    return response.data;
+  },
+
   async getUserTypes() {
     const response = await api.get('/getUserTypes');
     return response.data;
