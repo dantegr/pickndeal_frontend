@@ -223,7 +223,7 @@ const CompleteProfile = () => {
         payload.deliveryRadius = formData.deliveryRadius;
       }
 
-      const response = await api.post('/save/profile', payload);
+      const response = await api.post('/profile/complete-profile', payload);
 
       if (response.status === 200 && response.data?.type === 'success') {
         // Update user in context

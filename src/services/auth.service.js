@@ -55,12 +55,12 @@ const authService = {
   },
 
   async submitUserDetail(userData) {
-    const response = await api.post('/submitUserDetail', userData);
+    const response = await api.post('/user/submitUserDetail', userData);
     return response.data;
   },
 
   async getUserDetails() {
-    const response = await api.get('/getUser');
+    const response = await api.get('/user/getUser');
     return response.data;
   },
 
@@ -79,7 +79,7 @@ const authService = {
   },
 
   async getUserTypes() {
-    const response = await api.get('/getUserTypes');
+    const response = await api.get('/user/getUserTypes');
     return response.data;
   },
 
