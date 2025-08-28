@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { toast } from 'react-toastify';
-import authService from '../services/auth.service';
+import PasswordChangeForm from '../components/PasswordChangeForm';
+import EditProfileForm from '../components/EditProfileForm';
 import {
   Container,
   Paper,
@@ -17,9 +17,7 @@ import {
   Avatar,
   Button,
   IconButton,
-  Collapse,
-  TextField,
-  CircularProgress
+  Collapse
 } from '@mui/material';
 import {
   Person,
@@ -39,67 +37,26 @@ const AccountSettings = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [expandedPassword, setExpandedPassword] = useState(false);
-  const [passwordForm, setPasswordForm] = useState({
-    oldPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [expandedProfile, setExpandedProfile] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswordForm(prev => ({ ...prev, [name]: value }));
-    
-    // Clear error for this field when user types
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
+  const handlePasswordChangeSuccess = () => {
+    setExpandedPassword(false);
   };
 
-  const handlePasswordSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Frontend validation - check if passwords match
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error('Passwords do not match');
-      setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
-      return;
-    }
-    
-    setLoading(true);
-    setErrors({});
-    
-    try {
-      const response = await authService.changePassword(
-        passwordForm.oldPassword,
-        passwordForm.newPassword,
-        passwordForm.confirmPassword
-      );
-      
-      toast.success(response.message || 'Password changed successfully');
-      setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
-      setExpandedPassword(false);
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.error || 
-                          'Failed to change password';
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
+  const handleProfileEditSuccess = () => {
+    setExpandedProfile(false);
   };
 
   const settingsItems = [
     {
       title: 'Profile',
       items: [
-        { text: 'Edit Profile', icon: <Person />, path: '/complete-profile' },
+        { text: 'Edit Profile', icon: <Person />, expandable: true },
         { text: 'Change Password', icon: <Lock />, expandable: true },
         { text: 'Notifications', icon: <Notifications />, path: '/notifications' }
       ]
@@ -187,8 +144,10 @@ const AccountSettings = () => {
                     onClick={() => {
                       if (item.expandable && item.text === 'Change Password') {
                         setExpandedPassword(!expandedPassword);
-                      } else if (item.path === '/complete-profile') {
-                        navigate(item.path);
+                        setExpandedProfile(false);
+                      } else if (item.expandable && item.text === 'Edit Profile') {
+                        setExpandedProfile(!expandedProfile);
+                        setExpandedPassword(false);
                       } else if (item.path) {
                         console.log(`Navigate to ${item.path}`);
                       }
@@ -196,58 +155,25 @@ const AccountSettings = () => {
                   >
                     <ListItemIcon>{item.icon}</ListItemIcon>
                     <ListItemText primary={item.text} />
-                    {item.expandable && item.text === 'Change Password' ? (
-                      expandedPassword ? <ExpandLess /> : <ExpandMore />
+                    {item.expandable ? (
+                      item.text === 'Change Password' ? (
+                        expandedPassword ? <ExpandLess /> : <ExpandMore />
+                      ) : item.text === 'Edit Profile' ? (
+                        expandedProfile ? <ExpandLess /> : <ExpandMore />
+                      ) : <ChevronRight />
                     ) : (
                       <ChevronRight />
                     )}
                   </ListItemButton>
                 </ListItem>
+                {item.expandable && item.text === 'Edit Profile' && (
+                  <Collapse in={expandedProfile} timeout="auto" unmountOnExit>
+                    <EditProfileForm onSuccess={handleProfileEditSuccess} />
+                  </Collapse>
+                )}
                 {item.expandable && item.text === 'Change Password' && (
                   <Collapse in={expandedPassword} timeout="auto" unmountOnExit>
-                    <Box component="form" onSubmit={handlePasswordSubmit} sx={{ p: 3, bgcolor: '#f9f9f9' }}>
-                      <TextField
-                        fullWidth
-                        type="password"
-                        name="oldPassword"
-                        label="Old Password"
-                        value={passwordForm.oldPassword}
-                        onChange={handlePasswordChange}
-                        required
-                        sx={{ mb: 2 }}
-                      />
-                      <TextField
-                        fullWidth
-                        type="password"
-                        name="newPassword"
-                        label="New Password"
-                        value={passwordForm.newPassword}
-                        onChange={handlePasswordChange}
-                        required
-                        sx={{ mb: 2 }}
-                      />
-                      <TextField
-                        fullWidth
-                        type="password"
-                        name="confirmPassword"
-                        label="Confirm Password"
-                        value={passwordForm.confirmPassword}
-                        onChange={handlePasswordChange}
-                        required
-                        sx={{ mb: 2 }}
-                      />
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        disabled={loading}
-                        sx={{ 
-                          bgcolor: '#2e42e2',
-                          '&:hover': { bgcolor: '#1e32d2' }
-                        }}
-                      >
-                        {loading ? <CircularProgress size={24} color="inherit" /> : 'Change Password'}
-                      </Button>
-                    </Box>
+                    <PasswordChangeForm onSuccess={handlePasswordChangeSuccess} />
                   </Collapse>
                 )}
                 {itemIndex < section.items.length - 1 && <Divider />}

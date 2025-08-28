@@ -9,6 +9,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import theme from './theme/theme';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProfileProvider } from './contexts/ProfileContext';
+import { LocationDataProvider } from './contexts/LocationDataContext';
+import { CategoriesProvider } from './contexts/CategoriesContext';
 import PrivateRoute from './components/PrivateRoute';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
@@ -50,7 +52,9 @@ function App() {
         <CssBaseline />
         <AuthProvider>
           <ProfileProvider>
-            <Router>
+            <LocationDataProvider>
+              <CategoriesProvider>
+                <Router>
               <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
@@ -139,6 +143,8 @@ function App() {
               </Route>
             </Routes>
           </Router>
+              </CategoriesProvider>
+            </LocationDataProvider>
         </ProfileProvider>
         <ToastContainer
           position="top-right"
