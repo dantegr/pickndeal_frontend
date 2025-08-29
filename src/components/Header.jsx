@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useProfile } from '../contexts/ProfileContext';
 import {
   AppBar,
   Box,
@@ -85,6 +86,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const Header = () => {
   const { user, logout } = useAuth();
+  const { profile } = useProfile();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -150,8 +152,11 @@ const Header = () => {
       <Divider />
       <Box sx={{ p: 2, bgcolor: '#f5f5f5' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          <Avatar sx={{ width: 40, height: 40, mr: 2 }}>
-            {user?.name?.charAt(0).toUpperCase()}
+          <Avatar 
+            sx={{ width: 40, height: 40, mr: 2 }}
+            src={profile?.avatarImage || undefined}
+          >
+            {!profile?.avatarImage && user?.name?.charAt(0).toUpperCase()}
           </Avatar>
           <Typography variant="subtitle1" fontWeight="bold">
             {user?.name}
@@ -277,8 +282,11 @@ const Header = () => {
                       onClick={() => navigate('/account-settings')} 
                       sx={{ p: 0 }}
                     >
-                      <Avatar sx={{ bgcolor: '#2e42e2' }}>
-                        {user?.name?.charAt(0).toUpperCase()}
+                      <Avatar 
+                        sx={{ bgcolor: '#2e42e2' }}
+                        src={profile?.avatarImage || undefined}
+                      >
+                        {!profile?.avatarImage && user?.name?.charAt(0).toUpperCase()}
                       </Avatar>
                     </IconButton>
                   </Tooltip>

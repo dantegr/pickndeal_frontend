@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useProfile } from '../contexts/ProfileContext';
 import PasswordChangeForm from '../components/PasswordChangeForm';
 import EditProfileForm from '../components/EditProfileForm';
+import api from '../services/api';
 import {
   Container,
   Paper,
@@ -17,7 +19,10 @@ import {
   Avatar,
   Button,
   IconButton,
-  Collapse
+  Collapse,
+  CircularProgress,
+  Alert,
+  Snackbar
 } from '@mui/material';
 import {
   Person,
@@ -30,14 +35,19 @@ import {
   ArrowBack,
   ChevronRight,
   ExpandMore,
-  ExpandLess
+  ExpandLess,
+  CameraAlt
 } from '@mui/icons-material';
 
 const AccountSettings = () => {
   const { user, logout } = useAuth();
+  const { profile, fetchProfile } = useProfile();
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
   const [expandedPassword, setExpandedPassword] = useState(false);
   const [expandedProfile, setExpandedProfile] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   const handleLogout = () => {
     logout();
@@ -50,6 +60,78 @@ const AccountSettings = () => {
 
   const handleProfileEditSuccess = () => {
     setExpandedProfile(false);
+  };
+
+  const handleAvatarButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarFileChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setSnackbar({
+        open: true,
+        message: 'Please select a valid image file (JPEG, PNG, GIF, or WebP)',
+        severity: 'error'
+      });
+      return;
+    }
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setSnackbar({
+        open: true,
+        message: 'Image size must be less than 5MB',
+        severity: 'error'
+      });
+      return;
+    }
+
+    setUploadingAvatar(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await api.post('/profile/avatar', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      if (response.data?.type === 'success') {
+        setSnackbar({
+          open: true,
+          message: 'Profile image updated successfully',
+          severity: 'success'
+        });
+        
+        // Refetch profile to update the avatar across the app
+        await fetchProfile();
+      }
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Failed to upload profile image',
+        severity: 'error'
+      });
+    } finally {
+      setUploadingAvatar(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   const settingsItems = [
@@ -91,40 +173,124 @@ const AccountSettings = () => {
       </Box>
 
       <Paper sx={{ p: 3, mb: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <Avatar 
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: { xs: 'center', sm: 'center' },
+            gap: { xs: 2, sm: 0 }
+          }}
+        >
+          <Box 
             sx={{ 
-              width: 80, 
-              height: 80, 
-              mr: 3,
-              bgcolor: '#2e42e2',
-              fontSize: '2rem'
+              display: 'flex',
+              alignItems: 'center',
+              flexDirection: { xs: 'column', sm: 'row' },
+              flex: { xs: 'none', sm: 1 },
+              width: { xs: '100%', sm: 'auto' }
             }}
           >
-            {user?.name?.charAt(0).toUpperCase()}
-          </Avatar>
-          <Box>
-            <Typography variant="h6" fontWeight="bold">
-              {user?.name}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {user?.email}
-            </Typography>
             <Box 
               sx={{ 
-                display: 'inline-block',
-                bgcolor: '#ff9800',
-                color: 'white',
-                px: 1.5,
-                py: 0.5,
-                borderRadius: 1,
-                mt: 0.5
+                position: 'relative', 
+                mr: { xs: 0, sm: 3 },
+                mb: { xs: 2, sm: 0 }
               }}
             >
-              <Typography variant="caption" fontWeight="medium">
-                {user?.userRole?.role === 'retailer' ? 'Retailer' : 'Supplier'}
+              <Avatar 
+                sx={{ 
+                  width: { xs: 80, sm: 70 },
+                  height: { xs: 80, sm: 70 },
+                  bgcolor: '#2e42e2',
+                  fontSize: { xs: '2rem', sm: '1.75rem' }
+                }}
+                src={profile?.avatarImage || undefined}
+              >
+                {!profile?.avatarImage && user?.name?.charAt(0).toUpperCase()}
+              </Avatar>
+              {uploadingAvatar && (
+                <CircularProgress
+                  size={80}
+                  sx={{
+                    position: 'absolute',
+                    top: -5,
+                    left: -5,
+                    zIndex: 1,
+                  }}
+                />
+              )}
+            </Box>
+            
+            <Box 
+              sx={{ 
+                textAlign: { xs: 'center', sm: 'left' },
+                mb: { xs: 2, sm: 0 }
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: { xs: 'center', sm: 'flex-start' } }}>
+                <Typography variant="h6" fontWeight="bold">
+                  {user?.name}
+                </Typography>
+                <Box 
+                  sx={{ 
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    bgcolor: '#ff9800',
+                    color: 'white',
+                    px: 1.5,
+                    py: 0.5,
+                    borderRadius: 1,
+                    height: 'fit-content'
+                  }}
+                >
+                  <Typography variant="caption" fontWeight="medium">
+                    {user?.userRole?.role === 'retailer' ? 'Retailer' : 'Supplier'}
+                  </Typography>
+                </Box>
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                {user?.email}
               </Typography>
             </Box>
+          </Box>
+          
+          <Box 
+            sx={{ 
+              width: { xs: '100%', sm: 'auto' },
+              display: 'flex',
+              justifyContent: { xs: 'center', sm: 'flex-end' },
+              alignItems: 'center'
+            }}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+              style={{ display: 'none' }}
+              onChange={handleAvatarFileChange}
+            />
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<CameraAlt />}
+              onClick={handleAvatarButtonClick}
+              disabled={uploadingAvatar}
+              sx={{
+                width: { xs: '100%', sm: 'auto' },
+                borderColor: '#2e42e2',
+                color: '#2e42e2',
+                textTransform: 'none',
+                fontWeight: 500,
+                px: { xs: 2, sm: 2.5 },
+                py: { xs: 1, sm: 0.75 },
+                '&:hover': {
+                  borderColor: '#1e32d2',
+                  bgcolor: 'rgba(46, 66, 226, 0.04)'
+                }
+              }}
+            >
+              Update Profile Image
+            </Button>
           </Box>
         </Box>
       </Paper>
@@ -196,6 +362,21 @@ const AccountSettings = () => {
           </ListItemButton>
         </ListItem>
       </Paper>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
