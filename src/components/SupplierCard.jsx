@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getDistance } from 'geolib';
 import { useProfile } from '../contexts/ProfileContext';
+import ChatModal from './ChatModal';
 import {
   Card,
   CardContent,
@@ -24,13 +25,14 @@ import {
 const SupplierCard = ({ supplier }) => {
   const navigate = useNavigate();
   const { coordinates: userCoordinates } = useProfile();
+  const [chatModalOpen, setChatModalOpen] = useState(false);
 
   const handleViewProfile = () => {
     navigate(`/user/public/profile/${supplier.id}`);
   };
 
   const handleChat = () => {
-    navigate(`/user/chat/${supplier.id}/0`);
+    setChatModalOpen(true);
   };
 
   const getCategoryColor = (index) => {
@@ -194,6 +196,13 @@ const SupplierCard = ({ supplier }) => {
           </Tooltip>
         </Box>
       </CardActions>
+
+      {/* Chat Modal */}
+      <ChatModal
+        open={chatModalOpen}
+        onClose={() => setChatModalOpen(false)}
+        receiver={supplier}
+      />
     </Card>
   );
 };

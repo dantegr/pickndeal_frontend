@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import theme from './theme/theme';
 import { AuthProvider } from './contexts/AuthContext';
+import { SocketProvider } from './contexts/SocketContext';
 import { ProfileProvider } from './contexts/ProfileContext';
 import { LocationDataProvider } from './contexts/LocationDataContext';
 import { CategoriesProvider } from './contexts/CategoriesContext';
@@ -51,10 +52,11 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AuthProvider>
-          <ProfileProvider>
-            <LocationDataProvider>
-              <CategoriesProvider>
-                <Router>
+          <SocketProvider>
+            <ProfileProvider>
+              <LocationDataProvider>
+                <CategoriesProvider>
+                  <Router>
               <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
@@ -143,9 +145,10 @@ function App() {
               </Route>
             </Routes>
           </Router>
-              </CategoriesProvider>
-            </LocationDataProvider>
-        </ProfileProvider>
+                </CategoriesProvider>
+              </LocationDataProvider>
+            </ProfileProvider>
+          </SocketProvider>
         <ToastContainer
           position="top-right"
           autoClose={3000}

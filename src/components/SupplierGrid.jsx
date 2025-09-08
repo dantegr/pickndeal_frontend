@@ -9,7 +9,8 @@ import SupplierCard from './SupplierCard';
 
 const mockSuppliers = [
   {
-    id: 1,
+    id: '507f1f77bcf86cd799439011',
+    _id: '507f1f77bcf86cd799439011',
     name: 'Nordic Organic Farms',
     businessType: 'Organic Supplier',
     categories: ['Fresh Produce', 'Dairy Products', 'Meat & Poultry', 'Soft Drinks', 'Juices'],
@@ -23,7 +24,8 @@ const mockSuppliers = [
     avatarColor: '#4caf50'
   },
   {
-    id: 2,
+    id: '507f1f77bcf86cd799439012',
+    _id: '507f1f77bcf86cd799439012',
     name: 'Copenhagen Food Supplies',
     businessType: 'Wholesale Distributor',
     categories: ['Bakery Items', 'Frozen Foods', 'Catering', 'Beverages'],
@@ -37,7 +39,8 @@ const mockSuppliers = [
     avatarColor: '#2196f3'
   },
   {
-    id: 3,
+    id: '507f1f77bcf86cd799439013',
+    _id: '507f1f77bcf86cd799439013',
     name: 'Danish Fresh Market',
     businessType: 'Local Supplier',
     categories: ['Vegetables', 'Fruits', 'Herbs', 'Seasonal Produce', 'Organic Products'],
@@ -51,7 +54,8 @@ const mockSuppliers = [
     avatarColor: '#ff9800'
   },
   {
-    id: 4,
+    id: '507f1f77bcf86cd799439014',
+    _id: '507f1f77bcf86cd799439014',
     name: 'Scandinavian Seafood Co.',
     businessType: 'Seafood Specialist',
     categories: ['Fresh Fish', 'Shellfish', 'Frozen Seafood', 'Sushi Grade'],
@@ -65,7 +69,8 @@ const mockSuppliers = [
     avatarColor: '#00bcd4'
   },
   {
-    id: 5,
+    id: '507f1f77bcf86cd799439015',
+    _id: '507f1f77bcf86cd799439015',
     name: 'Green Valley Distributors',
     businessType: 'Eco-Friendly Supplier',
     categories: ['Organic Vegetables', 'Sustainable Products', 'Local Produce'],
@@ -79,7 +84,8 @@ const mockSuppliers = [
     avatarColor: '#8bc34a'
   },
   {
-    id: 6,
+    id: '507f1f77bcf86cd799439016',
+    _id: '507f1f77bcf86cd799439016',
     name: 'Metro Wholesale Foods',
     businessType: 'Bulk Supplier',
     categories: ['Bulk Items', 'Restaurant Supplies', 'Catering Equipment'],
@@ -93,7 +99,8 @@ const mockSuppliers = [
     avatarColor: '#9c27b0'
   },
   {
-    id: 7,
+    id: '507f1f77bcf86cd799439017',
+    _id: '507f1f77bcf86cd799439017',
     name: 'Nordic Bakery Supplies',
     businessType: 'Bakery Specialist',
     categories: ['Flour', 'Baking Ingredients', 'Pastry Supplies', 'Equipment'],
@@ -107,7 +114,8 @@ const mockSuppliers = [
     avatarColor: '#795548'
   },
   {
-    id: 8,
+    id: '507f1f77bcf86cd799439018',
+    _id: '507f1f77bcf86cd799439018',
     name: 'Danish Dairy Direct',
     businessType: 'Dairy Distributor',
     categories: ['Milk Products', 'Cheese', 'Yogurt', 'Butter', 'Cream'],
@@ -121,7 +129,8 @@ const mockSuppliers = [
     avatarColor: '#f44336'
   },
   {
-    id: 9,
+    id: '507f1f77bcf86cd799439019',
+    _id: '507f1f77bcf86cd799439019',
     name: 'Continental Imports',
     businessType: 'International Foods',
     categories: ['Italian', 'Spanish', 'Asian', 'Middle Eastern', 'Specialty Items'],
@@ -135,7 +144,8 @@ const mockSuppliers = [
     avatarColor: '#3f51b5'
   },
   {
-    id: 10,
+    id: '507f1f77bcf86cd79943901a',
+    _id: '507f1f77bcf86cd79943901a',
     name: 'Fresh & Fast Logistics',
     businessType: 'Express Delivery',
     categories: ['All Categories', 'Same Day Delivery', 'Emergency Supplies'],
