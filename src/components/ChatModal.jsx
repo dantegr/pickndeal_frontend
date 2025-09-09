@@ -80,10 +80,7 @@ const ChatModal = ({ open, onClose, receiver }) => {
     const unsubscribeMessageSent = subscribeToMessageSent((data) => {
       // Replace temporary message with the confirmed one
       setMessages(prev => prev.map(msg => 
-        msg._id === data.tempId ? { 
-          ...data.message,
-          sender: user.id // Ensure sender ID is correctly set for comparison
-        } : msg
+        msg._id === data.tempId ? data.message : msg
       ));
       if (!chatId && data.chatId) {
         setChatId(data.chatId);
@@ -139,8 +136,8 @@ const ChatModal = ({ open, onClose, receiver }) => {
     // Add message to local state immediately for better UX
     const tempMessage = {
       _id: tempId,
-      sender: user.id,
-      receiver: receiver.id,
+      sender: { _id: user.id, name: user.name, email: user.email },
+      receiver: { _id: receiver.id, name: receiver.name, email: receiver.email },
       textContent: messageText,
       dateSent: new Date(),
       isRead: false,
@@ -282,8 +279,31 @@ const ChatModal = ({ open, onClose, receiver }) => {
             ) : (
               messages.map((message) => {
                 // Handle both ObjectId and string comparisons for sender ID
-                const senderId = typeof message.sender === 'object' ? message.sender._id || message.sender : message.sender;
-                const isSender = senderId === user.id || senderId === user._id;
+                let senderId;
+                if (typeof message.sender === 'object' && message.sender !== null) {
+                  // Sender is populated as an object
+                  senderId = (message.sender._id || message.sender.id || '').toString();
+                } else if (message.sender) {
+                  // Sender is just an ID (string or ObjectId)
+                  senderId = message.sender.toString();
+                } else {
+                  console.error('Message has no sender:', message);
+                  senderId = '';
+                }
+                
+                const currentUserId = (user.id || user._id || '').toString();
+                const isSender = senderId === currentUserId;
+                
+                // Debug logging (remove in production)
+                if (process.env.NODE_ENV === 'development' && message._id) {
+                  console.log('Message:', message._id, {
+                    senderId,
+                    currentUserId,
+                    isSender,
+                    messageText: message.textContent?.substring(0, 20) + '...'
+                  });
+                }
+                
                 const avatarSrc = isSender ? profile?.avatarImage : receiver?.image;
                 const avatarName = isSender ? user?.name : receiver?.name;
                 const avatarColor = isSender ? '#2e42e2' : (receiver?.avatarColor || '#2e42e2');

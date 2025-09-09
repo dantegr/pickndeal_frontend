@@ -8,9 +8,9 @@ class ChatService {
       return {
         success: true,
         data: {
-          chatId: response.data.chat?._id,
-          messages: response.data.messages || [],
-          chat: response.data.chat
+          chatId: response.data.data?.chatId || response.data.chat?._id,
+          messages: response.data.data?.messages || response.data.messages || [],
+          chat: response.data.data?.chat || response.data.chat
         }
       };
     } catch (error) {
