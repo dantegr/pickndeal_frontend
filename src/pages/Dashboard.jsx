@@ -68,10 +68,8 @@ const Dashboard = () => {
       setContentLoading(true);
       if (isRetailer) {
         // Fetch suppliers for retailer
-        // const response = await api.get('/suppliers/nearby');
-        // setSuppliers(response.data);
-        // Using mock data for now
-        setSuppliers(undefined); // Will use mock data from SupplierGrid
+        const response = await api.get('/user/suppliers');
+        setSuppliers(response.data.data || []);
       } else if (isSupplier) {
         // Fetch requirements for supplier
         // const response = await api.get('/requirements/available');
@@ -81,6 +79,10 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error('Error fetching content:', error);
+      // Set empty array on error to prevent using mock data
+      if (isRetailer) {
+        setSuppliers([]);
+      }
     } finally {
       setContentLoading(false);
     }

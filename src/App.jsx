@@ -36,6 +36,7 @@ import Invoice from './pages/Invoice';
 import SubmitQuote from './pages/SubmitQuote';
 import PublicProfile from './pages/PublicProfile';
 import AccountSettings from './pages/AccountSettings';
+import UserChats from './pages/UserChats';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -139,6 +140,11 @@ function App() {
                 <Route path="/account-settings" element={
                   <ProtectedRoute>
                     <AccountSettings />
+                  </ProtectedRoute>
+                } />
+                <Route path="/chats" element={
+                  <ProtectedRoute>
+                    <UserChats />
                   </ProtectedRoute>
                 } />
                 </Route>

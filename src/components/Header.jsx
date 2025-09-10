@@ -39,7 +39,8 @@ import {
   FormatQuote,
   Person,
   Logout,
-  Close
+  Close,
+  Chat
 } from '@mui/icons-material';
 import logo from '../assets/logo.png';
 
@@ -180,6 +181,16 @@ const Header = () => {
             </ListItemButton>
           </ListItem>
         ))}
+        <ListItem disablePadding>
+          <ListItemButton
+            component={Link}
+            to="/chats"
+            onClick={handleDrawerToggle}
+          >
+            <ListItemIcon><Chat /></ListItemIcon>
+            <ListItemText primary="Messages" />
+          </ListItemButton>
+        </ListItem>
         <Divider sx={{ my: 1 }} />
         <ListItem disablePadding>
           <ListItemButton
@@ -244,6 +255,22 @@ const Header = () => {
                       </IconButton>
                     </Tooltip>
                   ))}
+                  <Tooltip title="Messages">
+                    <IconButton
+                      component={Link}
+                      to="/chats"
+                      sx={{
+                        color: '#4b4b4b',
+                        mx: 0.5,
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                          color: '#2e42e2',
+                        }
+                      }}
+                    >
+                      <Chat />
+                    </IconButton>
+                  </Tooltip>
                 </Box>
 
                 <Box component="form" onSubmit={handleSearch}>

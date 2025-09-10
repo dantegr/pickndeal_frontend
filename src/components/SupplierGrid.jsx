@@ -160,7 +160,7 @@ const mockSuppliers = [
   }
 ];
 
-const SupplierGrid = ({ suppliers = mockSuppliers, loading = false }) => {
+const SupplierGrid = ({ suppliers, loading = false }) => {
   if (loading) {
     return (
       <Box
