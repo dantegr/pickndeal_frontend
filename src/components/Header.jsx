@@ -43,6 +43,7 @@ import {
   Chat
 } from '@mui/icons-material';
 import logo from '../assets/logo.png';
+import { useNotifications } from '../contexts/NotificationContext';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -99,6 +100,7 @@ const Header = () => {
 
   const isRetailer = user?.userRole?.role === 'retailer';
   const isSupplier = user?.userRole?.role === 'supplier';
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -297,7 +299,7 @@ const Header = () => {
                 onClick={handleOpenNotifMenu}
                 sx={{ mr: 1 }}
               >
-                <Badge badgeContent={0} color="error">
+                <Badge badgeContent={unreadCount} color="error">
                   <NotificationsOutlined />
                 </Badge>
               </IconButton>
@@ -377,13 +379,87 @@ const Header = () => {
               open={Boolean(anchorElNotif)}
               onClose={handleCloseNotifMenu}
               PaperProps={{
-                sx: { width: 300 }
+                sx: { width: 360, maxHeight: 400 }
               }}
             >
-              <Box sx={{ p: 2 }}>
-                <Typography variant="subtitle2" color="text.secondary">
-                  No new notifications
-                </Typography>
+              <Box sx={{ p: 2, borderBottom: '1px solid #e0e0e0' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="h6">Notifications</Typography>
+                  {unreadCount > 0 && (
+                    <Button 
+                      size="small" 
+                      onClick={() => markAllAsRead()}
+                      sx={{ textTransform: 'none' }}
+                    >
+                      Mark all as read
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+              <Box sx={{ maxHeight: 320, overflow: 'auto' }}>
+                {notifications.length === 0 ? (
+                  <Box sx={{ p: 3, textAlign: 'center' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      No new notifications
+                    </Typography>
+                  </Box>
+                ) : (
+                  <List sx={{ p: 0 }}>
+                    {notifications.map((notification) => (
+                      <ListItem
+                        key={notification._id}
+                        sx={{
+                          borderBottom: '1px solid #f0f0f0',
+                          bgcolor: notification.isRead ? 'transparent' : '#f5f5f5',
+                          '&:hover': { bgcolor: '#e8e8e8' },
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => {
+                          if (!notification.isRead) {
+                            markAsRead(notification._id);
+                          }
+                          // Handle notification click based on type
+                          if (notification.type === 'chat') {
+                            navigate('/chats');
+                            handleCloseNotifMenu();
+                          }
+                        }}
+                      >
+                        <ListItemIcon>
+                          {notification.type === 'chat' && <Chat color="primary" />}
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={
+                            notification.type === 'chat' 
+                              ? notification.data.senderName 
+                              : 'Notification'
+                          }
+                          secondary={
+                            <>
+                              {notification.type === 'chat' && (
+                                <Typography
+                                  component="span"
+                                  variant="body2"
+                                  color="text.primary"
+                                  sx={{ display: 'block' }}
+                                >
+                                  {notification.data.message}
+                                </Typography>
+                              )}
+                              <Typography
+                                component="span"
+                                variant="caption"
+                                color="text.secondary"
+                              >
+                                {new Date(notification.dateCreated).toLocaleString()}
+                              </Typography>
+                            </>
+                          }
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
               </Box>
             </Menu>
           </Toolbar>

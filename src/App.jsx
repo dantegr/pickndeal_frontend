@@ -12,6 +12,8 @@ import { SocketProvider } from './contexts/SocketContext';
 import { ProfileProvider } from './contexts/ProfileContext';
 import { LocationDataProvider } from './contexts/LocationDataContext';
 import { CategoriesProvider } from './contexts/CategoriesContext';
+import { ChatModalProvider } from './contexts/ChatModalContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import PrivateRoute from './components/PrivateRoute';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
@@ -57,7 +59,9 @@ function App() {
             <ProfileProvider>
               <LocationDataProvider>
                 <CategoriesProvider>
-                  <Router>
+                  <ChatModalProvider>
+                    <NotificationProvider>
+                      <Router>
               <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
@@ -150,7 +154,9 @@ function App() {
                 </Route>
               </Route>
             </Routes>
-          </Router>
+                      </Router>
+                    </NotificationProvider>
+                  </ChatModalProvider>
                 </CategoriesProvider>
               </LocationDataProvider>
             </ProfileProvider>

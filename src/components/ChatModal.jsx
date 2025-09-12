@@ -21,6 +21,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { useSocket } from '../contexts/SocketContext';
+import { useChatModal } from '../contexts/ChatModalContext';
 import chatService from '../services/chat.service';
 import { format } from 'date-fns';
 import { useProfile } from '../contexts/ProfileContext';
@@ -28,6 +29,7 @@ import { useProfile } from '../contexts/ProfileContext';
 const ChatModal = ({ open, onClose, receiver }) => {
   const { user } = useAuth();
   const { profile } = useProfile();
+  const { openChat, closeChat } = useChatModal();
   const { 
     isConnected, 
     sendMessage: socketSendMessage, 
@@ -58,12 +60,31 @@ const ChatModal = ({ open, onClose, receiver }) => {
     scrollToBottom();
   }, [messages]);
 
-  // Load chat history when modal opens
+  // Manage chat modal context state
   useEffect(() => {
     if (open && receiver?.id) {
+      openChat(receiver.id);
       loadChatHistory();
+    } else if (!open) {
+      closeChat();
     }
-  }, [open, receiver?.id]);
+  }, [open, receiver?.id, openChat, closeChat]);
+
+  // Load chat history when modal opens
+  const loadChatHistory = async () => {
+    setLoading(true);
+    try {
+      const response = await chatService.getChatHistory(receiver.id);
+      if (response.success) {
+        setMessages(response.data.messages || []);
+        setChatId(response.data.chatId);
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Subscribe to socket events
   useEffect(() => {
@@ -108,21 +129,6 @@ const ChatModal = ({ open, onClose, receiver }) => {
       unsubscribeTyping();
     };
   }, [open, receiver?.id, chatId, subscribeToMessages, subscribeToMessageSent, subscribeToMessageError, subscribeToTyping]);
-
-  const loadChatHistory = async () => {
-    setLoading(true);
-    try {
-      const response = await chatService.getChatHistory(receiver.id);
-      if (response.success) {
-        setMessages(response.data.messages || []);
-        setChatId(response.data.chatId);
-      }
-    } catch (error) {
-      console.error('Error loading chat history:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSendMessage = () => {
     if (!newMessage.trim() || !isConnected) return;
@@ -193,10 +199,15 @@ const ChatModal = ({ open, onClose, receiver }) => {
 
   const isOnline = receiver?.id && isUserOnline(receiver.id);
 
+  const handleClose = () => {
+    closeChat();
+    onClose();
+  };
+
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       maxWidth="sm"
       fullWidth
       PaperProps={{
@@ -240,7 +251,7 @@ const ChatModal = ({ open, onClose, receiver }) => {
             </Box>
           </Box>
         </Box>
-        <IconButton onClick={onClose}>
+        <IconButton onClick={handleClose}>
           <Close />
         </IconButton>
       </DialogTitle>

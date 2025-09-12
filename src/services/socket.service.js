@@ -9,6 +9,7 @@ class SocketService {
     this.statusHandlers = new Set();
     this.messageSentHandlers = new Set();
     this.messageErrorHandlers = new Set();
+    this.notificationHandlers = new Set();
   }
 
   connect(userId) {
@@ -81,6 +82,12 @@ class SocketService {
     this.socket.on('message_error', (data) => {
       console.error('Message error:', data);
       this.messageErrorHandlers.forEach(handler => handler(data));
+    });
+
+    // Listen for notification created events
+    this.socket.on('notification_created', (data) => {
+      console.log('Notification created:', data);
+      this.notificationHandlers.forEach(handler => handler(data));
     });
   }
 
@@ -183,6 +190,25 @@ class SocketService {
     return () => {
       this.messageErrorHandlers.delete(handler);
     };
+  }
+
+  // Register notification handler
+  onNotificationCreated(handler) {
+    this.notificationHandlers.add(handler);
+    
+    return () => {
+      this.notificationHandlers.delete(handler);
+    };
+  }
+
+  // Generic event listener
+  on(event, handler) {
+    if (event === 'notification_created') {
+      return this.onNotificationCreated(handler);
+    }
+    // Add more event types as needed
+    console.warn(`Unknown event type: ${event}`);
+    return () => {};
   }
 }
 
