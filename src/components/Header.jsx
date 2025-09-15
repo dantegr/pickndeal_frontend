@@ -33,7 +33,6 @@ import {
   Search as SearchIcon,
   NotificationsOutlined,
   Home,
-  AddBox,
   ListAlt,
   LocalMall,
   FormatQuote,
@@ -135,7 +134,6 @@ const Header = () => {
   const navigationItems = [
     { text: 'Home', icon: <Home />, path: '/dashboard' },
     ...(isRetailer ? [
-      { text: 'Add Requirement', icon: <AddBox />, path: '/requirements/add' },
       { text: 'My Requirements', icon: <ListAlt />, path: '/requirements' },
     ] : []),
     ...(isSupplier ? [
