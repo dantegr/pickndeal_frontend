@@ -17,9 +17,17 @@ import {
   Alert,
   IconButton,
   FormControlLabel,
-  Checkbox
+  Checkbox,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography
 } from '@mui/material';
-import { Close as CloseIcon } from '@mui/icons-material';
+import { Close as CloseIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -30,18 +38,25 @@ const CreateRequirementModal = ({ open, onClose, onRequirementCreated }) => {
     title: '',
     description: '',
     categories: [],
-    quantity: '',
+    products: [],
     recurring: false,
     location: '',
     deliveryDate: '',
     budget: ''
   });
   const [productCategories, setProductCategories] = useState([]);
+  const [availableProducts, setAvailableProducts] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(false);
+  const [loadingProducts, setLoadingProducts] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedUnits, setSelectedUnits] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
+  const [newProduct, setNewProduct] = useState({
+    productId: '',
+    name: '',
+    quantity: '',
+    unit_of_measurement: ''
+  });
 
   const daysOfWeek = [
     'Monday',
@@ -59,6 +74,14 @@ const CreateRequirementModal = ({ open, onClose, onRequirementCreated }) => {
     }
   }, [open]);
 
+  useEffect(() => {
+    if (formData.categories.length > 0) {
+      fetchProductsByCategories();
+    } else {
+      setAvailableProducts([]);
+    }
+  }, [formData.categories]);
+
   const fetchProductCategories = async () => {
     try {
       setLoadingCategories(true);
@@ -69,6 +92,33 @@ const CreateRequirementModal = ({ open, onClose, onRequirementCreated }) => {
       setError('Failed to load categories');
     } finally {
       setLoadingCategories(false);
+    }
+  };
+
+  const fetchProductsByCategories = async () => {
+    try {
+      setLoadingProducts(true);
+      const allProducts = [];
+
+      // Get category UUIDs
+      const selectedCategoryObjects = productCategories.filter(cat =>
+        formData.categories.includes(cat.name)
+      );
+
+      // Fetch products for each selected category
+      for (const category of selectedCategoryObjects) {
+        const response = await api.get(`/product/getByCategory/${category.uuid}`);
+        if (response.data.success) {
+          allProducts.push(...response.data.data);
+        }
+      }
+
+      setAvailableProducts(allProducts);
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      setError('Failed to load products');
+    } finally {
+      setLoadingProducts(false);
     }
   };
 
@@ -96,16 +146,17 @@ const CreateRequirementModal = ({ open, onClose, onRequirementCreated }) => {
       categories: typeof value === 'string' ? value.split(',') : value
     }));
 
-    // Update units based on selected categories
-    if (value.length > 0) {
-      // Find the units for the first selected category
-      const firstCategory = productCategories.find(cat => cat.name === value[0]);
-      if (firstCategory) {
-        setSelectedUnits(firstCategory.unit_of_measurement);
-      }
-    } else {
-      setSelectedUnits('');
-    }
+    // Clear products when categories change
+    setFormData(prev => ({
+      ...prev,
+      products: []
+    }));
+    setNewProduct({
+      productId: '',
+      name: '',
+      quantity: '',
+      unit_of_measurement: ''
+    });
   };
 
   const handleDateChange = (date) => {
@@ -118,20 +169,72 @@ const CreateRequirementModal = ({ open, onClose, onRequirementCreated }) => {
     }
   };
 
+  const handleProductSelect = (productId) => {
+    const product = availableProducts.find(p => p.uuid === productId);
+    if (product) {
+      setNewProduct({
+        productId: product.uuid,
+        name: product.name,
+        quantity: '',
+        unit_of_measurement: product.unit_of_measurement
+      });
+    }
+  };
+
+  const handleAddProduct = () => {
+    if (!newProduct.productId || !newProduct.quantity) {
+      setError('Please select a product and enter quantity');
+      return;
+    }
+
+    if (parseFloat(newProduct.quantity) <= 0) {
+      setError('Quantity must be a positive number');
+      return;
+    }
+
+    // Check if product already exists in the list
+    const existingProduct = formData.products.find(p => p.productId === newProduct.productId);
+    if (existingProduct) {
+      setError('This product is already added');
+      return;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      products: [...prev.products, { ...newProduct, quantity: parseFloat(newProduct.quantity) }]
+    }));
+
+    // Reset new product form
+    setNewProduct({
+      productId: '',
+      name: '',
+      quantity: '',
+      unit_of_measurement: ''
+    });
+    setError(null);
+  };
+
+  const handleRemoveProduct = (productId) => {
+    setFormData(prev => ({
+      ...prev,
+      products: prev.products.filter(p => p.productId !== productId)
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
     // Validate form
-    if (!formData.title || !formData.description || !formData.location || 
-        !formData.deliveryDate || !formData.budget || !formData.quantity) {
+    if (!formData.title || !formData.description || !formData.location ||
+        !formData.deliveryDate || !formData.budget) {
       setError('Please fill in all required fields');
       return;
     }
 
-    // Validate quantity is a positive number
-    if (parseFloat(formData.quantity) <= 0) {
-      setError('Quantity must be a positive number');
+    // Validate products
+    if (formData.products.length === 0) {
+      setError('Please add at least one product');
       return;
     }
 
@@ -145,14 +248,20 @@ const CreateRequirementModal = ({ open, onClose, onRequirementCreated }) => {
           title: '',
           description: '',
           categories: [],
-          quantity: '',
+          products: [],
           recurring: false,
           location: '',
           deliveryDate: '',
           budget: ''
         });
-        setSelectedUnits('');
+        setNewProduct({
+          productId: '',
+          name: '',
+          quantity: '',
+          unit_of_measurement: ''
+        });
         setSelectedDate(null);
+        setAvailableProducts([]);
         
         // Notify parent component
         if (onRequirementCreated) {
@@ -175,14 +284,20 @@ const CreateRequirementModal = ({ open, onClose, onRequirementCreated }) => {
         title: '',
         description: '',
         categories: [],
-        quantity: '',
+        products: [],
         recurring: false,
         location: '',
         deliveryDate: '',
         budget: ''
       });
-      setSelectedUnits('');
+      setNewProduct({
+        productId: '',
+        name: '',
+        quantity: '',
+        unit_of_measurement: ''
+      });
       setSelectedDate(null);
+      setAvailableProducts([]);
       setError(null);
       onClose();
     }
@@ -278,19 +393,127 @@ const CreateRequirementModal = ({ open, onClose, onRequirementCreated }) => {
               </Select>
             </FormControl>
 
-            <TextField
-              required
-              fullWidth
-              type="number"
-              label={`Quantity${selectedUnits ? ` (${selectedUnits})` : ''}`}
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleChange}
-              placeholder="Enter quantity"
-              helperText={selectedUnits ? `Quantity in ${selectedUnits}` : 'Select a category first to see units'}
-              disabled={submitting}
-              inputProps={{ min: 0, step: "any" }}
-            />
+            {/* Products Section */}
+            <Box>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Products *
+              </Typography>
+
+              {/* Add Product Row */}
+              <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                <FormControl sx={{ flex: 2 }}>
+                  <InputLabel id="product-select-label">Select Product</InputLabel>
+                  <Select
+                    labelId="product-select-label"
+                    value={newProduct.productId}
+                    onChange={(e) => handleProductSelect(e.target.value)}
+                    label="Select Product"
+                    disabled={submitting || loadingProducts || availableProducts.length === 0}
+                  >
+                    {loadingProducts ? (
+                      <MenuItem disabled>
+                        <CircularProgress size={20} />
+                      </MenuItem>
+                    ) : availableProducts.length === 0 ? (
+                      <MenuItem disabled>
+                        {formData.categories.length === 0
+                          ? 'Please select categories first'
+                          : 'No products available for selected categories'}
+                      </MenuItem>
+                    ) : (
+                      availableProducts.map((product) => (
+                        <MenuItem key={product.uuid} value={product.uuid}>
+                          {product.name} ({product.unit_of_measurement})
+                        </MenuItem>
+                      ))
+                    )}
+                  </Select>
+                </FormControl>
+
+                <TextField
+                  sx={{ flex: 1 }}
+                  type="number"
+                  label="Quantity"
+                  value={newProduct.quantity}
+                  onChange={(e) => setNewProduct(prev => ({ ...prev, quantity: e.target.value }))}
+                  placeholder="0.0"
+                  disabled={!newProduct.productId || submitting}
+                  inputProps={{ min: 0, step: "any" }}
+                />
+
+                <TextField
+                  sx={{ flex: 1 }}
+                  label="Units"
+                  value={newProduct.unit_of_measurement}
+                  disabled
+                  InputProps={{ readOnly: true }}
+                />
+
+                <Button
+                  variant="contained"
+                  onClick={handleAddProduct}
+                  disabled={!newProduct.productId || !newProduct.quantity || submitting}
+                  sx={{
+                    minWidth: 100,
+                    bgcolor: '#2e42e2',
+                    '&:hover': { bgcolor: '#1e32d2' }
+                  }}
+                  startIcon={<AddIcon />}
+                >
+                  Add
+                </Button>
+              </Box>
+
+              {/* Products Table */}
+              {formData.products.length > 0 && (
+                <TableContainer component={Paper} variant="outlined">
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Product</TableCell>
+                        <TableCell align="right">Quantity</TableCell>
+                        <TableCell>Units</TableCell>
+                        <TableCell align="center">Action</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {formData.products.map((product) => (
+                        <TableRow key={product.productId}>
+                          <TableCell>{product.name}</TableCell>
+                          <TableCell align="right">{product.quantity}</TableCell>
+                          <TableCell>{product.unit_of_measurement}</TableCell>
+                          <TableCell align="center">
+                            <IconButton
+                              size="small"
+                              onClick={() => handleRemoveProduct(product.productId)}
+                              disabled={submitting}
+                              color="error"
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+
+              {formData.products.length === 0 && (
+                <Box
+                  sx={{
+                    p: 2,
+                    textAlign: 'center',
+                    border: '1px dashed',
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                    color: 'text.secondary'
+                  }}
+                >
+                  No products added yet. Select a product and click Add.
+                </Box>
+              )}
+            </Box>
 
             <TextField
               required

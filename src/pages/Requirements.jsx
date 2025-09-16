@@ -183,12 +183,21 @@ const Requirements = () => {
                   </Typography>
 
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <Inventory fontSize="small" color="action" />
-                      <Typography variant="caption" color="text.secondary">
-                        Quantity: {requirement.quantity} {requirement.categories && requirement.categories.length > 0 ? `units` : ''}
-                      </Typography>
-                    </Box>
+                    {requirement.products && requirement.products.length > 0 && (
+                      <Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                          <Inventory fontSize="small" color="action" />
+                          <Typography variant="caption" color="text.secondary" fontWeight="medium">
+                            Products ({requirement.products.length}):
+                          </Typography>
+                        </Box>
+                        {requirement.products.map((product, index) => (
+                          <Typography key={index} variant="caption" color="text.secondary" sx={{ display: 'block', ml: 3 }}>
+                            • {product.name}: {product.quantity} {product.unit_of_measurement}
+                          </Typography>
+                        ))}
+                      </Box>
+                    )}
 
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                       <LocationOn fontSize="small" color="action" />
