@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import api from '../services/api';
 import {
   Card,
   CardContent,
@@ -12,6 +14,8 @@ import {
   Divider,
   IconButton,
   Collapse,
+  Avatar,
+  CircularProgress
 } from '@mui/material';
 import {
   AccessTime,
@@ -21,13 +25,26 @@ import {
   Visibility,
   Send,
   ExpandMore,
-  ExpandLess
+  ExpandLess,
+  Edit,
+  Delete,
+  CalendarToday,
+  AttachMoney,
+  Inventory,
+  Repeat,
+  PlayArrow,
+  Pause
 } from '@mui/icons-material';
 
-const RequirementCard = ({ requirement }) => {
+const RequirementCard = ({ requirement, onEdit, onDelete }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
   const [showExpandButton, setShowExpandButton] = useState(false);
+  const [updatingState, setUpdatingState] = useState(false);
+
+  const isRetailer = user?.userRole?.role === 'retailer';
+  const isSupplier = user?.userRole?.role === 'supplier';
 
   useEffect(() => {
     // Simple check based on character count
@@ -41,25 +58,52 @@ const RequirementCard = ({ requirement }) => {
   }, [requirement.description]);
 
   const handleViewDetails = () => {
-    navigate(`/requirements/view/${requirement.id}`);
+    navigate(`/requirements/view/${requirement.uuid}`);
   };
 
   const handleSubmitQuote = () => {
-    navigate(`/quotes/submit/${requirement.id}`);
+    navigate(`/quotes/submit/${requirement.uuid}`);
   };
 
   const toggleExpanded = () => {
     setExpanded(!expanded);
   };
 
-  const getStatusColor = (status) => {
-    const statusColors = {
-      open: 'success',
-      pending: 'warning',
-      closed: 'error',
-      completed: 'info'
-    };
-    return statusColors[status] || 'default';
+  const handleEdit = () => {
+    if (onEdit) onEdit(requirement);
+  };
+
+  const handleDelete = () => {
+    if (onDelete) onDelete(requirement);
+  };
+
+  const handleToggleState = async () => {
+    try {
+      setUpdatingState(true);
+      const newState = requirement.state === 'CREATED' ? 'ACTIVE' : 'CREATED';
+
+      await api.patch(`/requirement/updateState/${requirement.uuid}`, {
+        state: newState
+      });
+
+      // Update the requirement object locally to reflect the change
+      requirement.state = newState;
+
+    } catch (error) {
+      console.error('Error updating requirement state:', error);
+    } finally {
+      setUpdatingState(false);
+    }
+  };
+
+  const getStateColor = (state) => {
+    switch (state) {
+      case 'CREATED': return 'default';
+      case 'ACTIVE': return 'primary';
+      case 'PROCESSING': return 'warning';
+      case 'COMPLETED': return 'success';
+      default: return 'default';
+    }
   };
 
   const getUrgencyColor = (urgency) => {
@@ -74,9 +118,6 @@ const RequirementCard = ({ requirement }) => {
   return (
     <Card
       sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
         transition: 'all 0.3s',
         '&:hover': {
           boxShadow: 6,
@@ -92,30 +133,36 @@ const RequirementCard = ({ requirement }) => {
             sx={{
               fontWeight: 'bold',
               color: '#4b4b4b',
-              cursor: 'pointer',
-              '&:hover': {
-                color: '#2e42e2',
-              },
+              flex: 1
             }}
-            onClick={handleViewDetails}
           >
             {requirement.title}
           </Typography>
-          <Box sx={{ display: 'flex', gap: 0.5 }}>
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+          <Chip
+            label={requirement.state || requirement.status}
+            color={getStateColor(requirement.state || requirement.status)}
+            size="small"
+          />
+          {requirement.recurring && (
             <Chip
-              label={requirement.status}
+              label="Recurring"
+              color="secondary"
               size="small"
-              color={getStatusColor(requirement.status)}
+              icon={<Repeat />}
+              variant="outlined"
             />
-            {requirement.urgency && (
-              <Chip
-                label={requirement.urgency}
-                size="small"
-                color={getUrgencyColor(requirement.urgency)}
-                variant="outlined"
-              />
-            )}
-          </Box>
+          )}
+          {requirement.urgency && (
+            <Chip
+              label={requirement.urgency}
+              size="small"
+              color={getUrgencyColor(requirement.urgency)}
+              variant="outlined"
+            />
+          )}
         </Box>
 
         <Box sx={{ mb: 2 }}>
@@ -154,25 +201,48 @@ const RequirementCard = ({ requirement }) => {
         </Box>
 
         <Stack spacing={1.5}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Category sx={{ fontSize: 16, color: '#909097' }} />
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-              {requirement.categories.slice(0, 3).map((category, index) => (
-                <Chip
-                  key={index}
-                  label={category}
-                  size="small"
-                  variant="outlined"
-                  sx={{ fontSize: '0.7rem', height: '20px' }}
-                />
+          {requirement.products && requirement.products.length > 0 && (
+            <Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                <Inventory fontSize="small" color="action" />
+                <Typography variant="caption" color="text.secondary" fontWeight="medium">
+                  Products ({requirement.products.length}):
+                </Typography>
+              </Box>
+              {requirement.products.slice(0, 2).map((product, index) => (
+                <Typography key={index} variant="caption" color="text.secondary" sx={{ display: 'block', ml: 3 }}>
+                  • {product.name}: {product.quantity} {product.unit_of_measurement}
+                </Typography>
               ))}
-              {requirement.categories.length > 3 && (
-                <Typography variant="caption" color="text.secondary">
-                  +{requirement.categories.length - 3} more
+              {requirement.products.length > 2 && (
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', ml: 3 }}>
+                  +{requirement.products.length - 2} more products
                 </Typography>
               )}
             </Box>
-          </Box>
+          )}
+
+          {requirement.categories && requirement.categories.length > 0 && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Category sx={{ fontSize: 16, color: '#909097' }} />
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {requirement.categories.slice(0, 3).map((category, index) => (
+                  <Chip
+                    key={index}
+                    label={category}
+                    size="small"
+                    variant="outlined"
+                    sx={{ fontSize: '0.7rem', height: '20px' }}
+                  />
+                ))}
+                {requirement.categories.length > 3 && (
+                  <Typography variant="caption" color="text.secondary">
+                    +{requirement.categories.length - 3} more
+                  </Typography>
+                )}
+              </Box>
+            </Box>
+          )}
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <LocationOn sx={{ fontSize: 16, color: '#909097' }} />
@@ -182,17 +252,20 @@ const RequirementCard = ({ requirement }) => {
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <AccessTime sx={{ fontSize: 16, color: '#909097' }} />
+            <CalendarToday sx={{ fontSize: 16, color: '#909097' }} />
             <Typography variant="body2" color="text.secondary">
-              Delivery: {requirement.deliveryDate}
+              {requirement.recurring
+                ? `Every ${requirement.deliveryDate}`
+                : requirement.deliveryDate
+              }
             </Typography>
           </Box>
 
           {requirement.budget && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <LocalOffer sx={{ fontSize: 16, color: '#909097' }} />
+              <AttachMoney sx={{ fontSize: 16, color: '#909097' }} />
               <Typography variant="body2" color="text.secondary">
-                Budget: <strong>{requirement.budget}</strong>
+                {requirement.budget}
               </Typography>
             </Box>
           )}
@@ -201,35 +274,120 @@ const RequirementCard = ({ requirement }) => {
         <Divider sx={{ my: 2 }} />
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="caption" color="text.secondary">
-            Posted by: <strong>{requirement.postedBy}</strong>
-          </Typography>
+          {(requirement.postedByName || requirement.postedBy?.name) && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Avatar
+                sx={{ width: 64, height: 64 }}
+                src={requirement.postedByImage || undefined}
+              >
+                {!requirement.postedByImage && (requirement.postedByName || requirement.postedBy?.name)?.charAt(0).toUpperCase()}
+              </Avatar>
+              <Typography variant="caption" color="text.secondary">
+                Posted by: <strong>{requirement.postedByName || requirement.postedBy?.name}</strong>
+              </Typography>
+            </Box>
+          )}
           <Typography variant="caption" color="text.secondary">
             {requirement.quotesCount || 0} quotes received
           </Typography>
         </Box>
       </CardContent>
 
-      <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 2 }}>
-        <Button
-          size="small"
-          variant="outlined"
-          startIcon={<Visibility />}
-          onClick={handleViewDetails}
-        >
-          View Details
-        </Button>
-        {requirement.status === 'open' && (
+      {isSupplier && (
+        <CardActions sx={{ justifyContent: 'flex-end', px: 2, pb: 2, gap: 1 }}>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<Visibility fontSize="small" />}
+            onClick={handleViewDetails}
+            sx={{
+              fontSize: '0.75rem',
+              py: 0.5,
+              px: 1.5
+            }}
+          >
+            View Details
+          </Button>
+          {(requirement.state === 'ACTIVE' || requirement.status === 'open') && (
+            <Button
+              size="small"
+              variant="contained"
+              startIcon={<Send fontSize="small" />}
+              onClick={handleSubmitQuote}
+              sx={{
+                fontSize: '0.75rem',
+                py: 0.5,
+                px: 1.5
+              }}
+            >
+              Submit Quote
+            </Button>
+          )}
+        </CardActions>
+      )}
+
+      {isRetailer && (
+        <CardActions sx={{ justifyContent: 'flex-end', px: 2, pb: 2, gap: 1 }}>
           <Button
             size="small"
             variant="contained"
-            startIcon={<Send />}
-            onClick={handleSubmitQuote}
+            startIcon={
+              updatingState ? (
+                <CircularProgress size={12} color="inherit" />
+              ) : requirement.state === 'CREATED' ? (
+                <PlayArrow fontSize="small" />
+              ) : (
+                <Pause fontSize="small" />
+              )
+            }
+            onClick={handleToggleState}
+            disabled={updatingState}
+            sx={{
+              fontSize: '0.75rem',
+              py: 0.5,
+              px: 1.5,
+              bgcolor: requirement.state === 'CREATED' ? '#4caf50' : '#ff9800',
+              '&:hover': {
+                bgcolor: requirement.state === 'CREATED' ? '#388e3c' : '#f57c00'
+              }
+            }}
           >
-            Submit Quote
+            {updatingState
+              ? 'Updating...'
+              : requirement.state === 'CREATED'
+                ? 'Activate'
+                : 'Deactivate'
+            }
           </Button>
-        )}
-      </CardActions>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<Edit fontSize="small" />}
+            onClick={handleEdit}
+            sx={{
+              fontSize: '0.75rem',
+              py: 0.5,
+              px: 1.5
+            }}
+          >
+            Edit
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            color="error"
+            startIcon={<Delete fontSize="small" />}
+            onClick={handleDelete}
+            sx={{
+              fontSize: '0.75rem',
+              py: 0.5,
+              px: 1.5
+            }}
+          >
+            Delete
+          </Button>
+        </CardActions>
+      )}
     </Card>
   );
 };

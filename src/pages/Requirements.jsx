@@ -1,32 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Button, 
-  Card, 
-  CardContent, 
-  Grid, 
-  Chip, 
-  IconButton,
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  Stack,
   CircularProgress,
-  Alert,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText
+  Alert
 } from '@mui/material';
-import { 
-  Add as AddIcon, 
-  MoreVert as MoreVertIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  LocationOn,
-  CalendarToday,
-  AttachMoney,
-  Inventory,
-  Repeat
+import {
+  Add as AddIcon
 } from '@mui/icons-material';
 import CreateRequirementModal from '../components/CreateRequirementModal';
+import RequirementCard from '../components/RequirementCard';
 import api from '../services/api';
 
 const Requirements = () => {
@@ -34,8 +21,6 @@ const Requirements = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openModal, setOpenModal] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedRequirement, setSelectedRequirement] = useState(null);
 
   useEffect(() => {
     fetchRequirements();
@@ -55,23 +40,15 @@ const Requirements = () => {
     }
   };
 
-  const handleMenuOpen = (event, requirement) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedRequirement(requirement);
+  const handleEdit = (requirement) => {
+    // TODO: Implement edit functionality
+    console.log('Edit requirement:', requirement);
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedRequirement(null);
-  };
-
-  const handleDelete = async () => {
-    if (!selectedRequirement) return;
-    
+  const handleDelete = async (requirement) => {
     try {
-      await api.delete(`/requirement/delete/${selectedRequirement.uuid || selectedRequirement._id}`);
-      setRequirements(requirements.filter(req => req._id !== selectedRequirement._id));
-      handleMenuClose();
+      await api.delete(`/requirement/delete/${requirement.uuid || requirement._id}`);
+      setRequirements(requirements.filter(req => req._id !== requirement._id));
     } catch (err) {
       console.error('Error deleting requirement:', err);
       setError('Failed to delete requirement');
@@ -82,15 +59,6 @@ const Requirements = () => {
     setRequirements([newRequirement, ...requirements]);
   };
 
-  const getStateColor = (state) => {
-    switch (state) {
-      case 'CREATED': return 'default';
-      case 'ACTIVE': return 'primary';
-      case 'PROCESSING': return 'warning';
-      case 'COMPLETED': return 'success';
-      default: return 'default';
-    }
-  };
 
   if (loading) {
     return (
@@ -144,129 +112,18 @@ const Requirements = () => {
           </CardContent>
         </Card>
       ) : (
-        <Grid container spacing={3}>
+        <Stack spacing={3}>
           {requirements.map((requirement) => (
-            <Grid item xs={12} md={6} lg={4} key={requirement._id}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                    <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold', flex: 1 }}>
-                      {requirement.title}
-                    </Typography>
-                    <IconButton
-                      size="small"
-                      onClick={(e) => handleMenuOpen(e, requirement)}
-                    >
-                      <MoreVertIcon />
-                    </IconButton>
-                  </Box>
-
-                  <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                    <Chip 
-                      label={requirement.state}
-                      color={getStateColor(requirement.state)}
-                      size="small"
-                    />
-                    {requirement.recurring && (
-                      <Chip
-                        label="Recurring"
-                        color="secondary"
-                        size="small"
-                        icon={<Repeat />}
-                        variant="outlined"
-                      />
-                    )}
-                  </Box>
-
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {requirement.description}
-                  </Typography>
-
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    {requirement.products && requirement.products.length > 0 && (
-                      <Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-                          <Inventory fontSize="small" color="action" />
-                          <Typography variant="caption" color="text.secondary" fontWeight="medium">
-                            Products ({requirement.products.length}):
-                          </Typography>
-                        </Box>
-                        {requirement.products.map((product, index) => (
-                          <Typography key={index} variant="caption" color="text.secondary" sx={{ display: 'block', ml: 3 }}>
-                            • {product.name}: {product.quantity} {product.unit_of_measurement}
-                          </Typography>
-                        ))}
-                      </Box>
-                    )}
-
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <LocationOn fontSize="small" color="action" />
-                      <Typography variant="caption" color="text.secondary">
-                        {requirement.location}
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <CalendarToday fontSize="small" color="action" />
-                      <Typography variant="caption" color="text.secondary">
-                        {requirement.recurring 
-                          ? `Every ${requirement.deliveryDate}` 
-                          : requirement.deliveryDate
-                        }
-                      </Typography>
-                    </Box>
-
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <AttachMoney fontSize="small" color="action" />
-                      <Typography variant="caption" color="text.secondary">
-                        {requirement.budget}
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  {requirement.categories && requirement.categories.length > 0 && (
-                    <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {requirement.categories.map((category, index) => (
-                        <Chip
-                          key={index}
-                          label={category}
-                          size="small"
-                          variant="outlined"
-                        />
-                      ))}
-                    </Box>
-                  )}
-
-                  <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid #e0e0e0' }}>
-                    <Typography variant="caption" color="text.secondary">
-                      Quotes received: {requirement.quotesCount || 0}
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
+            <RequirementCard
+              key={requirement._id}
+              requirement={requirement}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           ))}
-        </Grid>
+        </Stack>
       )}
 
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem onClick={handleMenuClose}>
-          <ListItemIcon>
-            <EditIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Edit</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleDelete}>
-          <ListItemIcon>
-            <DeleteIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Delete</ListItemText>
-        </MenuItem>
-      </Menu>
 
       <CreateRequirementModal
         open={openModal}

@@ -30,7 +30,6 @@ const Dashboard = () => {
     activeRequests: 0
   });
   const [suppliers, setSuppliers] = useState(null);
-  const [requirements, setRequirements] = useState(null);
   const [loading, setLoading] = useState(true);
   const [contentLoading, setContentLoading] = useState(true);
 
@@ -70,12 +69,6 @@ const Dashboard = () => {
         // Fetch suppliers for retailer
         const response = await api.get('/user/suppliers');
         setSuppliers(response.data.data || []);
-      } else if (isSupplier) {
-        // Fetch requirements for supplier
-        // const response = await api.get('/requirements/available');
-        // setRequirements(response.data);
-        // Using mock data for now
-        setRequirements(undefined); // Will use mock data from RequirementGrid
       }
     } catch (error) {
       console.error('Error fetching content:', error);
@@ -197,7 +190,7 @@ const Dashboard = () => {
           ) : (
             <>
               {isRetailer && <SupplierGrid suppliers={suppliers} />}
-              {isSupplier && <RequirementGrid requirements={requirements} />}
+              {isSupplier && <RequirementGrid />}
               {!isRetailer && !isSupplier && (
                 <Box sx={{ textAlign: 'center', py: 8 }}>
                   <Typography variant="h6" color="text.secondary">

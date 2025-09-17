@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useProfile } from '../contexts/ProfileContext';
 import {
   Dialog,
   DialogTitle,
@@ -34,6 +35,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import api from '../services/api';
 
 const CreateRequirementModal = ({ open, onClose, onRequirementCreated }) => {
+  const { profile } = useProfile();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -240,7 +242,16 @@ const CreateRequirementModal = ({ open, onClose, onRequirementCreated }) => {
 
     try {
       setSubmitting(true);
-      const response = await api.post('/requirement/create', formData);
+
+      // Prepare the data to send
+      const dataToSend = { ...formData };
+
+      // Add postedByImage if user has an avatar
+      if (profile?.avatarImage) {
+        dataToSend.postedByImage = profile.avatarImage;
+      }
+
+      const response = await api.post('/requirement/create', dataToSend);
       
       if (response.data.success) {
         // Reset form
