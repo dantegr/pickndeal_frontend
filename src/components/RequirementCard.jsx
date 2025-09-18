@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
+import CreateQuoteModal from './CreateQuoteModal';
+import EditQuoteModal from './EditQuoteModal';
 import {
   Card,
   CardContent,
@@ -33,7 +36,8 @@ import {
   Inventory,
   Repeat,
   PlayArrow,
-  Pause
+  Pause,
+  EditNote
 } from '@mui/icons-material';
 
 const RequirementCard = ({ requirement, onEdit, onDelete }) => {
@@ -42,9 +46,12 @@ const RequirementCard = ({ requirement, onEdit, onDelete }) => {
   const [expanded, setExpanded] = useState(false);
   const [showExpandButton, setShowExpandButton] = useState(false);
   const [updatingState, setUpdatingState] = useState(false);
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
+  const [editQuoteModalOpen, setEditQuoteModalOpen] = useState(false);
 
   const isRetailer = user?.userRole?.role === 'retailer';
   const isSupplier = user?.userRole?.role === 'supplier';
+  const hasQuoted = requirement?.quotedUsers?.includes(user?.id);
 
   useEffect(() => {
     // Simple check based on character count
@@ -62,7 +69,45 @@ const RequirementCard = ({ requirement, onEdit, onDelete }) => {
   };
 
   const handleSubmitQuote = () => {
-    navigate(`/quotes/submit/${requirement.uuid}`);
+    setQuoteModalOpen(true);
+  };
+
+  const handleEditQuote = () => {
+    setEditQuoteModalOpen(true);
+  };
+
+  const handleQuoteCreated = (quote) => {
+    // Update the quotes count and quotedUsers locally
+    if (requirement) {
+      requirement.quotesCount = (requirement.quotesCount || 0) + 1;
+      if (!requirement.quotedUsers) {
+        requirement.quotedUsers = [];
+      }
+      if (user?.id && !requirement.quotedUsers.includes(user.id)) {
+        requirement.quotedUsers.push(user.id);
+      }
+    }
+    // Show success toast
+    toast.success('Quote submitted successfully!', {
+      position: 'top-right',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+  };
+
+  const handleQuoteUpdated = (quote) => {
+    // Show success toast for update
+    toast.success('Quote updated successfully!', {
+      position: 'top-right',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   };
 
   const toggleExpanded = () => {
@@ -309,19 +354,37 @@ const RequirementCard = ({ requirement, onEdit, onDelete }) => {
             View Details
           </Button>
           {(requirement.state === 'ACTIVE' || requirement.status === 'open') && (
-            <Button
-              size="small"
-              variant="contained"
-              startIcon={<Send fontSize="small" />}
-              onClick={handleSubmitQuote}
-              sx={{
-                fontSize: '0.75rem',
-                py: 0.5,
-                px: 1.5
-              }}
-            >
-              Submit Quote
-            </Button>
+            hasQuoted ? (
+              <Button
+                size="small"
+                variant="contained"
+                startIcon={<EditNote fontSize="small" />}
+                onClick={handleEditQuote}
+                sx={{
+                  fontSize: '0.75rem',
+                  py: 0.5,
+                  px: 1.5,
+                  bgcolor: '#ff9800',
+                  '&:hover': { bgcolor: '#f57c00' }
+                }}
+              >
+                Edit Quote
+              </Button>
+            ) : (
+              <Button
+                size="small"
+                variant="contained"
+                startIcon={<Send fontSize="small" />}
+                onClick={handleSubmitQuote}
+                sx={{
+                  fontSize: '0.75rem',
+                  py: 0.5,
+                  px: 1.5
+                }}
+              >
+                Submit Quote
+              </Button>
+            )
           )}
         </CardActions>
       )}
@@ -388,6 +451,22 @@ const RequirementCard = ({ requirement, onEdit, onDelete }) => {
           </Button>
         </CardActions>
       )}
+
+      {/* Create Quote Modal */}
+      <CreateQuoteModal
+        open={quoteModalOpen}
+        onClose={() => setQuoteModalOpen(false)}
+        requirement={requirement}
+        onQuoteCreated={handleQuoteCreated}
+      />
+
+      {/* Edit Quote Modal */}
+      <EditQuoteModal
+        open={editQuoteModalOpen}
+        onClose={() => setEditQuoteModalOpen(false)}
+        requirement={requirement}
+        onQuoteUpdated={handleQuoteUpdated}
+      />
     </Card>
   );
 };
