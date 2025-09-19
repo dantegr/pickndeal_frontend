@@ -119,6 +119,7 @@ const Requirements = () => {
               requirement={requirement}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              clickable={true}
             />
           ))}
         </Stack>

@@ -40,7 +40,7 @@ import {
   EditNote
 } from '@mui/icons-material';
 
-const RequirementCard = ({ requirement, onEdit, onDelete }) => {
+const RequirementCard = ({ requirement, onEdit, onDelete, clickable = false }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
@@ -65,7 +65,7 @@ const RequirementCard = ({ requirement, onEdit, onDelete }) => {
   }, [requirement.description]);
 
   const handleViewDetails = () => {
-    navigate(`/requirements/view/${requirement.uuid}`);
+    navigate(`/requirements/${requirement.uuid}`);
   };
 
   const handleSubmitQuote = () => {
@@ -164,10 +164,17 @@ const RequirementCard = ({ requirement, onEdit, onDelete }) => {
     <Card
       sx={{
         transition: 'all 0.3s',
+        cursor: clickable ? 'pointer' : 'default',
         '&:hover': {
           boxShadow: 6,
           transform: 'translateY(-4px)',
         },
+      }}
+      onClick={(e) => {
+        // Only navigate if clickable prop is true
+        if (clickable && !e.target.closest('button') && !e.target.closest('.MuiCardActions-root')) {
+          handleViewDetails();
+        }
       }}
     >
       <CardContent sx={{ flexGrow: 1 }}>
@@ -340,19 +347,6 @@ const RequirementCard = ({ requirement, onEdit, onDelete }) => {
 
       {isSupplier && (
         <CardActions sx={{ justifyContent: 'flex-end', px: 2, pb: 2, gap: 1 }}>
-          <Button
-            size="small"
-            variant="outlined"
-            startIcon={<Visibility fontSize="small" />}
-            onClick={handleViewDetails}
-            sx={{
-              fontSize: '0.75rem',
-              py: 0.5,
-              px: 1.5
-            }}
-          >
-            View Details
-          </Button>
           {(requirement.state === 'ACTIVE' || requirement.status === 'open') && (
             hasQuoted ? (
               <Button
